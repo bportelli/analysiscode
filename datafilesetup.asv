@@ -1,9 +1,4 @@
-function [data, datacomb, mcuecomb, spdcomb, newpoints] = datafilesetup(imported, mcue, spd)
-%Make the data files and combined data files from imported struct
-%Also outputs the new mcue and spd lists for combi data files, and the
-%newpoints
-%NB: mcue and spd lists are a list of each mcue and spd, corresponding to
-%each data file
+function [data datacomb ]
 
 %Make the data files from imported struct
 
@@ -28,6 +23,28 @@ for i=1:(length(ct)-1)
 end
 
 dce = struct2cell(data); %data in a cell
+
+for c = 1:length(newpoints) %loop counter
+    n = newpoints(c); %current newpoint
+    j=1; %to make sure to stop adding tables before the next newpoint/end
+    if n == newpoints(end) %do this for the last batch of files (from last newpoint to end)
+        while j+n<=length(dce)
+            dce{n} = [dce{n};dce{n+j}];
+            j=j+1;
+        end
+    else %do this for all the other expt files belonging together (from one newpoint, to file just before the next one)
+        while j+n<newpoints(c+1)
+            dce{n} = [dce{n};dce{n+j}];
+            j=j+1;
+        end
+    end
+end
+
+
+
+
+
+
 
 for c = 1:length(newpoints) %loop counter
     n = newpoints(c); %current newpoint
