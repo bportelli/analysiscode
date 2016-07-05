@@ -3,7 +3,7 @@
 
 % NB: Mats file list (cell) will be made by the Master script
 
-function [] = analyse(sizecvt, contcvt, Mats)
+function [] = analyse(sizecvt, contcvt, Mats, IVs)
 %sizecvt and contcvt are the conversion tables for sizes and contrasts,
 %from the values that were written on the expt filename (as a string), to the values of
 %the actual variables. They are now in the Master.
