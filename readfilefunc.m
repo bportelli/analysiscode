@@ -1,4 +1,5 @@
-%% Script to read data files and extract New Discrimination table and list of motion cues (from Psykinematix Output)
+function [imported ivlists] = readfilefunc(ivs, ivtables)
+%% Function to read data files and extract New Discrimination table and list of motion cues (from Psykinematix Output)
 
 %TIP: Use char(9) if you want to refer to TAB using strtok
 
@@ -33,12 +34,16 @@ for a = 1:length(fn)
     
     %Detecting the motion cue and speed from the Expt Name
     
-    keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; %This is searched for in the expt file name
-    mcuelist = {'MID','LAT','CD','IOVD','FULL'}; %These two variables must correspond
+%     keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; %This is searched for in the expt file name
+%     mcuelist = {'MID','LAT','CD','IOVD','FULL'}; %These two variables must correspond
+%     
+%     keywdsspd = {'spd0.3','spd0.9','spd2'};
+%     spdlist = [0.3,0.9,2];
     
-    keywdsspd = {'spd0.3','spd0.9','spd2'};
-    spdlist = [0.3,0.9,2];
-    
+for n = 1:length(ivs)
+    % do the search and mark stuff below, repeated each time for each IV, using the relevant ivtable 
+end
+
     mark = @(x)~isempty(strfind(line,x)); %Marks the ref corresponding to the found keyword with a 1
     
     for k=1:length(keywds)
@@ -158,11 +163,13 @@ clear name1
 
 ppcode = input('INPUT ppcode:\n','s');
 
+disp('Saving Mat file to expt file directory...')
 sa = input('save mat file? y/n \n','s');
 if sa == 'y'
     save([pn,ppcode,'.mat'],'blockFID','fn','imported','mcue','pn','ppcode','spd','varsetup')
 end
 
+end
 
 %% RESOURCE SCRIPT USED TO MAKE THIS ONE (from A Mackenzie)
 % % Open eye tracker data file.

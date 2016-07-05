@@ -10,16 +10,23 @@ while 1
     if or(more == 'y', more == 'Y')
         
         
-%             keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; %This is searched for in the expt file name
-%     mcuelist = {'MID','LAT','CD','IOVD','FULL'}; %These two variables must correspond
-%     
-%     keywdsspd = {'spd0.3','spd0.9','spd2'};
-%     spdlist = [0.3,0.9,2];
+        keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; %This is searched for in the expt file name
+        mcuelist = {'MID','LAT','CD','IOVD','FULL'}; %These two variables must correspond
+        
+        keywdsspd = {'spd0.3','spd0.9','spd2'};
+        spdlist = [0.3,0.9,2];
+        
+        ivtables = %THIS IS A CELL ARRAY WITH AN IV TABLE IN EACH CELL
         
 %Make Readfilescript into a function that takes in number of IV's and their lookuptables and detects them, freeing up the analysis function from needing to do any detection
         
         
-        Readfilescript %import the Psykinematix outputs from "New Discrimination" tables    
+        readfilefunc(2, ivtables) %import the Psykinematix outputs from "New Discrimination" tables.
+        %readfile func takes an input of 2: the number of IV's
+        
+        %datafilesetup will now take (imported, ivlists) as its input.
+        %ivlists is a cell array, each cell being a list of ivs
+        %corresponding to each expt file
         [data, datacomb, mcuecomb, spdcomb, newpoints] = datafilesetup(imported, mcue, spd); %make the data and combined data tables
         
         save([pn ppcode '.mat'],'data', 'datacomb', 'mcuecomb', 'spdcomb', 'newpoints','-append') %save the new outputs
