@@ -1,26 +1,22 @@
-function [imported, indvars] = readfilefunc(exptnum, settings)
+function [imported, indvars, pn, ppcode] = readfilefunc(exptnum, settings)
 %% Function to read data files and extract New Discrimination table and list of motion cues (from Psykinematix Output)
 % The inputs: settings contains the number of IV's and their respective
 % keyword-IV level lookup table, exptnum is the experiment number (to refer
 % to correct settings)
+% pn and ppcode are also output for saving purposes (see datasetupmaster)
 
 %TIP: Use char(9) if you want to refer to TAB using strtok
+
+%Constants
+
+settings = settings(exptnum);
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
 
 diary([pn 'readfilelog.txt']) %Make log file
 
 %detect Cancel/Single entry
-try
-    if fn == 0
-        clear fn pn
-        return
-    end
-    if ischar(fn)
-        fn = {fn};
-    end
-catch
-end
+[fn] = gfcheck(fn,'cell'); %'cell' specifies that fn should be a cell array
 
 for a = 1:length(fn)
     
@@ -47,7 +43,7 @@ for iv = 1:settings.ivs
     % do the search-and-mark stuff below, repeated each time for each IV,
     % using the relevant ivtable from ivtables
     
-    ivtable = settings(exptnum).ivtables(iv); %current ivtable
+    ivtable = settings.ivtables(iv); %current ivtable
     
     for k=1:length(ivtable.keywds)
         chk(k) = mark(ivtable.keywds{k}); %chk is a logical array, where the 1 appears in the ref corresponding to the level of iv, as listed in keywds
@@ -129,6 +125,11 @@ end
         
         tvs = imported.(name).Properties.VariableNames;
         
+        % Convert Hits and Misses to 1's and 0's
+        imported.(name).Response(strcmp('Hit',imported.(name).Response))={'1'};
+        imported.(name).Response(strcmp('Miss',imported.(name).Response))={'0'};
+        imported.(name).Response = str2double(imported.(name).Response);
+                
         for n = 1:length(tvs);
             if iscell(imported.(name){:,n}) == 1
                 if all(cell2mat(cellfun(@(x) all(ismember(x, '0123456789+-.eEdD')),imported.(name){:,n},'UniformOutput',0)));
@@ -138,17 +139,12 @@ end
                 end
             end
         end
-        
-        % Convert Hits and Misses to 1's and 0's
-        imported.(name).Response(strcmp('Hit',imported.(name).Response))={'1'};
-        imported.(name).Response(strcmp('Miss',imported.(name).Response))={'0'};
-        imported.(name).Response = str2double(imported.(name).Response);
-        
-        
-        clearvars -EXCEPT imported fn pn mcue a blockFID loopcount name1 spd varsetup
+                      
+        clearvars -EXCEPT imported fn pn a blockFID loopcount name1 spd varsetup settings indvars
         loopcount = loopcount+1;
     end
 end
+
 
 clear name1
 
@@ -157,7 +153,7 @@ ppcode = input('INPUT ppcode:\n','s');
 % disp('Saving Mat file to expt file directory...')
 sa = input('Save mat file? y/n \n','s');
 if sa == 'y'
-    save([pn,ppcode,'.mat'],'blockFID','fn','imported','mcue','pn','ppcode','spd','varsetup')
+    save([pn,ppcode,'.mat'],'blockFID','fn','imported','indvars','pn','ppcode','varsetup')
     disp(['Saving Mat file to ', pn,ppcode,'.mat'])
 end
 

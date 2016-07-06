@@ -3,39 +3,32 @@
 
 % NB: Mats file list (cell) will be made by the Master script
 
-function [] = analyse(sizecvt, contcvt, Mats, IVs)
-%sizecvt and contcvt are the conversion tables for sizes and contrasts,
-%from the values that were written on the expt filename (as a string), to the values of
-%the actual variables. They are now in the Master.
+function [] = analysecomb(Mats, settings)
+%indvars contains the list of indipendent variable levels corresponding to
+%each expt file
 
 %%
 for cmf = 1:length(Mats)
 
     load(Mats{cmf}) % Load the Current Mat File
+    
+    setting = settings(exptnum);
 
     ct = fieldnames(datacomb);
+    
+    ivlevels = {indvars.levelscomb}.';
+    
+    for tt = 1:length(ivlevels) %set up a transposed version of ivlevels for Excel Table
+        ivlevelst{1,tt} = ivlevels{tt}';
+    end
     
 for i = 1:length(ct)
 
     tablename = ct{i};
-    
-% Get the deets from the name... CHANGE THESE TO BE MORE GENERAL... AND TO
-% BE OBTAINED FROM THE LIST FILES??
-
-wi = vlookup(sizecvt,tablename(4:5));
-width = wi{2};
-
-co = vlookup(contcvt,tablename(6:7));
-contrast = co{2};
-
-latormid = mcuecomb{i};
-
-widstr = num2str(width);
-contraststr = num2str(contrast);
-    
+        
 % Start calculating    
 
-StimLevels = datacomb.(tablename).Stimulusduration'; 
+StimLevels = datacomb.(tablename).(setting.psykvn)'; 
 NumPos = datacomb.(tablename).Response';                    
 OutOfNum = ones(1,length(NumPos));     
 
@@ -45,10 +38,12 @@ ProportionCorrectObserved=NumPos./OutOfNum;
 StimLevelsFineGrain=[min(StimLevels):max(StimLevels)./1000:max(StimLevels)];
 
 
+for v = 1:length(ivlevels)
+IVthisfile{v*2-1} = [setting.ivnames{v}];
+IVthisfile{v*2} = [char(ivlevels{v}(i)), '_'];
+end
 
-diary([pn,'Combined\','Outputs\','W',widstr,'C',contraststr,'_',strrep(num2str(fix(clock)),'    ',[]),'.txt'])
-
-
+diary([pn,'Combined\','Outputs\',IVthisfile{:},strrep(num2str(fix(clock)),'    ',[]),'.txt'])
 
 message = 'Bootstrapping on?';
 boots = 1; %input(message);
@@ -158,11 +153,11 @@ set(gca, 'Xtick',StimLevels);
 axis([0 max(StimLevels) 0 1]);
 hold on;
 plot(StimLevelsFineGrain,ProportionCorrectModel,'g-','linewidth',4);
-xlabel('Duration (ms)');
+xlabel(setting.thv);
 ylabel('Proportion Correct');
 
 % Make a title
-plottitle = [ppcode,' Width: ',widstr,' Contrast: ', contraststr];
+plottitle = [ppcode,' ',IVthisfile];
 title(plottitle);
 
 %Threshold marker
@@ -179,8 +174,8 @@ diary off
 
 % Condition{i,1} = latormid;
 DurationThreshold(i,1) = tx;
-Width(i,1) = str2num(widstr);
-Contrast(i,1) = str2num(contraststr);
+% Width(i,1) = str2num(widstr);
+% Contrast(i,1) = str2num(contraststr);
 
 AlphaEst(i,1) = paramsValues(1); %From function fit
 SlopeEst(i,1) = paramsValues(2);
@@ -206,9 +201,10 @@ close all
 clear StimLevels NumPos OutOfNum latormid
 end
 
-Condition = mcuecomb';
+% [a b c] = ivlevels{:}; %or use deal
+% ivlevelst is set at the beginning, as it's a constant
 
-T = table(Condition,Width,Contrast,DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
+T = table(ivlevelst{:},DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
 writetable(T,[pn,ppcode,'.xlsx'],'Sheet','fromfitcom')
 
 % ratiotable = {[],'3 - LAT','3 - MID','92 - LAT','92 - MID';...
@@ -219,7 +215,7 @@ writetable(T,[pn,ppcode,'.xlsx'],'Sheet','fromfitcom')
 % xlswrite([pn,ppcode,'.xlsx'],ratiotable,'fromfitcom','A15');
 
 close all
-clearvars -EXCEPT cmf Mats sizecvt contcvt
+clearvars -EXCEPT cmf Mats 
 clc
 
 end
