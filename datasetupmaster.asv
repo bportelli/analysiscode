@@ -25,9 +25,9 @@ while 1
 %Make Readfilescript into a function that takes in number of IV's and their lookuptables and detects them, freeing up the analysis function from needing to do any detection
         
         [imported, indvars] = readfilefunc(exptnum, settings); %import the Psykinematix outputs from "New Discrimination" tables.
-        %This outputs imported: a struct of all data tables (one per expt
-        %file) and indvars, the levels of the IV's, one per file
-                
+        
+        %datafilesetup will now take (imported, indvars) as its input.
+        
         [data, datacomb, indvars, newpoints] = datafilesetup(imported, indvars); %make the data and combined data tables
         
         save([pn ppcode '.mat'],'exptnum', 'settings','-append') %save the settings

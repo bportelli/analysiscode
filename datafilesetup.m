@@ -1,4 +1,4 @@
-function [data, datacomb, mcuecomb, spdcomb, newpoints] = datafilesetup(imported, mcue, spd)
+function [data, datacomb, indvars, newpoints] = datafilesetup(imported, indvars)
 %Make the data files and combined data files from imported struct
 %Also outputs the new mcue and spd lists for combi data files, and the
 %newpoints
@@ -49,7 +49,8 @@ for d = newpoints %make the datacomb struct
     datacomb.(ct{d}(1:end-1)) = dce{d};
 end
 
-mcuecomb = mcue(newpoints); %make a list of the mcues of the combined datafiles
-spdcomb = spd(newpoints);
+for iv = 1:length(indvars) 
+    indvars(iv).levelscomb = indvars(iv).levels(newpoints); %make a list of the levels of iv's of the combined datafiles
+end
 
 end

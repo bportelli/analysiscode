@@ -1,4 +1,4 @@
-function [imported, indvars] = readfilefunc(exptnum, settings)
+function [imported, ivlists] = readfilefunc(exptnum, settings)
 %% Function to read data files and extract New Discrimination table and list of motion cues (from Psykinematix Output)
 % The inputs: settings contains the number of IV's and their respective
 % keyword-IV level lookup table, exptnum is the experiment number (to refer
@@ -7,8 +7,6 @@ function [imported, indvars] = readfilefunc(exptnum, settings)
 %TIP: Use char(9) if you want to refer to TAB using strtok
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
-
-diary([pn 'readfilelog.txt']) %Make log file
 
 %detect Cancel/Single entry
 try
@@ -42,29 +40,49 @@ for a = 1:length(fn)
 mark = @(x)~isempty(strfind(line,x)); %Outputs 1 when the keyword exists in the line, 0 when it doesn't
 
 for iv = 1:settings.ivs
-    % loop through iv settings to identify which iv level this expt has for
-    % each iv
+    % loop through iv settings to identify which iv level this expt has
     % do the search-and-mark stuff below, repeated each time for each IV,
     % using the relevant ivtable from ivtables
     
     ivtable = settings(exptnum).ivtables(iv); %current ivtable
     
     for k=1:length(ivtable.keywds)
-        chk(k) = mark(ivtable.keywds{k}); %chk is a logical array, where the 1 appears in the ref corresponding to the level of iv, as listed in keywds
+        mchk(k) = mark(keywds{k}); %mchk is a logical array, where the 1 appears in the ref corresponding to the cue, as listed in keywds
     end
     
-     try
-        indvars(iv).levels{a} = ivtable.list{chk}; %The corresponding iv level (from list) to the found keywd is noted
+    
+    
+end
+    
+    
+    for k=1:length(keywds)
+        mchk(k) = mark(keywds{k}); %mchk is a logical array, where the 1 appears in the ref corresponding to the cue, as listed in keywds
+    end
+    
+    try
+        mcue{a} = mcuelist{mchk}; %The corresponding mcue (from mcuelist) to the found keywd is noted
     catch
-        if sum(chk) == 0
-            disp(['CANNAE FIND IV #',num2str(iv),' FOR FILE #',num2str(a)])
-            indvars(iv).levels{a} = 'UNK';
+        if sum(mchk) == 0
+            disp(['CANNAE FIND MOTION CUE FOR FILE #',num2str(a)])
+            mcue{a} = 'UNK';
         end
     end
-        
-    clear chk
-end
-      
+    
+    %Speed
+    
+    for ks=1:length(keywdsspd)
+        spdchk(ks) = mark(keywdsspd{ks}); %Logical array as previously described
+    end
+    
+    try
+        spd{a} = spdlist(spdchk); %The corresponding mcue (from mcuelist) to the found keywd is noted
+    catch
+        if sum(spdchk) == 0
+            disp(['CANNAE FIND SPEED FOR FILE #',num2str(a)])
+            spd{a} = 'UNK';
+        end
+    end
+    
     %%
     loopcount = 1;
     while ~feof(blockFID) %Loops to find more New Discrimination tables until end of document
@@ -154,16 +172,13 @@ clear name1
 
 ppcode = input('INPUT ppcode:\n','s');
 
-% disp('Saving Mat file to expt file directory...')
-sa = input('Save mat file? y/n \n','s');
+disp('Saving Mat file to expt file directory...')
+sa = input('save mat file? y/n \n','s');
 if sa == 'y'
     save([pn,ppcode,'.mat'],'blockFID','fn','imported','mcue','pn','ppcode','spd','varsetup')
-    disp(['Saving Mat file to ', pn,ppcode,'.mat'])
 end
 
-diary off %stop saving to log file
 end
-
 
 %% RESOURCE SCRIPT USED TO MAKE THIS ONE (from A Mackenzie)
 % % Open eye tracker data file.
