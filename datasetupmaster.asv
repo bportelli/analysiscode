@@ -25,9 +25,9 @@ while 1
 %Make Readfilescript into a function that takes in number of IV's and their lookuptables and detects them, freeing up the analysis function from needing to do any detection
         
         [imported, indvars] = readfilefunc(exptnum, settings); %import the Psykinematix outputs from "New Discrimination" tables.
-        
-        %datafilesetup will now take (imported, indvars) as its input.
-        
+        %This outputs imported: a struct of all data tables (one per expt
+        %file) and indvars, the levels of the IV's, one per file
+                
         [data, datacomb, indvars, newpoints] = datafilesetup(imported, indvars); %make the data and combined data tables
         
         save([pn ppcode '.mat'],'exptnum', 'settings','-append') %save the settings
@@ -40,10 +40,10 @@ while 1
     more = input('Set up another pp data file? y/n \n','s');
 end
 
-%% The analysis MAT file setup loop
+%% The analysis MAT file choice loop
 % Select .mat files to analyse, then analyse them
 
-disp('Beginning anaylsis MAT file setup loop...')
+disp('Beginning MAT file choice loop...')
 disp('Select a MAT file to analyse...')
 
 mat = 0;
@@ -51,7 +51,7 @@ more = 'y';
 while 1
     if or(more == 'y', more == 'Y')
         mat = mat+1;
-        [fn, pn] = uigetfile('.mat');
+        [fn, pn] = uigetfile('.mat'); %Needs to be in a loop because it doesn't handle multiple pn's (??
         Mats{mat} = [pn fn];
         copyfile('C:\Users\bjp4\Documents\MATLAB\Study 3 Analysis\Folder structure',pn) %NB: Copy the Folder Structure to pn
     else
@@ -60,7 +60,7 @@ while 1
     more = input('Analyse another mat file? y/n \n','s');
 end
 
-if mat == 0 % Ends the script if no MAT files are selected
+if mat == 0 % Script-writing error checker; ends the script if no MAT files are selected (mat ==0 should be impossible)
     warning('NO MAT FILES SELECTED')
     return
 end
