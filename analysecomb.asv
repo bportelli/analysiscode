@@ -35,7 +35,7 @@ for i = 1:length(ct)
 
     tablename = ct{i};
     
-    for v = 1:length(ivlevels) %Set up a name for output files based on IV's of this file
+        for v = 1:length(ivlevels) %Set up a name for output files based on IV's of this file
         IVthisfile{v*2-1} = [setting.ivnames{v}];
         IVthisfile{v*2} = [char(ivlevels{v}(i)), '_'];
     end
@@ -200,13 +200,13 @@ dtab = [AlphaEst(i,1); SlopeEst(i,1); AlphaSE(i,1); SlopeSE(i,1);Deviance(i,1); 
 thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
 
 %Save
-saveas(gcf,[pn,'Combined\','Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.png'])
-saveas(gcf,[pn,'Combined\','Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.fig'])
+saveas(gcf,[pn,'Combined\','Fitting\',latormid,'W',widstr,'C',contraststr,'_',strrep(num2str(fix(clock)),'    ',[]),'.png'])
+saveas(gcf,[pn,'Combined\','Fitting\',latormid,'W',widstr,'C',contraststr,'_',strrep(num2str(fix(clock)),'    ',[]),'.fig'])
 
 
 close all
 
-clear StimLevels NumPos OutOfNum 
+clear StimLevels NumPos OutOfNum latormid
 end
 
 % [a b c] = ivlevels{:}; %or use deal
