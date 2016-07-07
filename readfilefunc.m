@@ -9,7 +9,7 @@ function [imported, indvars, pn, ppcode] = readfilefunc(exptnum, settings)
 
 %Constants
 
-settings = settings(exptnum);
+setting = settings(exptnum);
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
 
@@ -37,24 +37,26 @@ for a = 1:length(fn)
         
 mark = @(x)~isempty(strfind(line,x)); %Outputs 1 when the keyword exists in the line, 0 when it doesn't
 
-for iv = 1:settings.ivs
+for iva = 1:setting.ivs
     % loop through iv settings to identify which iv level this expt has for
     % each iv
     % do the search-and-mark stuff below, repeated each time for each IV,
     % using the relevant ivtable from ivtables
     
-    ivtable = settings.ivtables(iv); %current ivtable
+    ivtable = setting.ivtables(iva); %current ivtable
     
     for k=1:length(ivtable.keywds)
         chk(k) = mark(ivtable.keywds{k}); %chk is a logical array, where the 1 appears in the ref corresponding to the level of iv, as listed in keywds
     end
     
      try
-        indvars(iv).levels{a} = ivtable.list{chk}; %The corresponding iv level (from list) to the found keywd is noted
+        indvars(iva).levels{a} = ivtable.list(chk); %The corresponding iv level (from list) to the found keywd is noted
     catch
         if sum(chk) == 0
-            disp(['CANNAE FIND IV #',num2str(iv),' FOR FILE #',num2str(a)])
-            indvars(iv).levels{a} = 'UNK';
+            disp(['CANNAE FIND IV #',num2str(iva),' FOR FILE #',num2str(a)])
+            indvars(iva).levels{a} = 'UNK';
+        else
+            error('There was an error with the independent variable detection.')
         end
     end
         
@@ -140,7 +142,7 @@ end
             end
         end
                       
-        clearvars -EXCEPT imported fn pn a blockFID loopcount name1 spd varsetup settings indvars
+        clearvars -EXCEPT imported fn pn a blockFID loopcount name1 spd varsetup setting settings indvars
         loopcount = loopcount+1;
     end
 end

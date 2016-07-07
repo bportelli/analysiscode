@@ -216,8 +216,10 @@ close all
 clear StimLevels NumPos OutOfNum 
 end
 
-T = table(ivlevelst{:},DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
-writetable(T,[pn,ppcode,'.xlsx'],'Sheet',xlshnm)
+T1 = table(ivlevelst{:},'VariableNames',setting.ivnames);
+T2 = table(DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
+
+writetable([T1 T2],[pn,ppcode,'.xlsx'],'Sheet',xlshnm)
 
 % ratiotable = {[],'3 - LAT','3 - MID','92 - LAT','92 - MID';...
 %     1.50000000000000,'=N12/MIN($N$12:$Q$14)','=O12/MIN($N$12:$Q$14)','=P12/MIN($N$12:$Q$14)','=Q12/MIN($N$12:$Q$14)';...

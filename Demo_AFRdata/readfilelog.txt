@@ -11,3 +11,53 @@ Demo_AFR
 Save mat file? y/n 
 y
 Saving Mat file to C:\Users\bjp4\Documents\MATLAB\Study 3 Analysis\DATA\Demo_AFRdata\Demo_AFR.mat
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession3)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession4)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession4)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession3)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession3)
+INPUT ppcode:
+afrdemobus
+Save mat file? y/n 
+y
+Saving Mat file to C:\Users\Benjamin\Documents\MATLAB\Git\analysiscode\Demo_AFRdata\afrdemobus.mat
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession3)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession4)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C04SubjectAFRDATASession4)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: Expe3c09SubjectAFRDATASession3)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession1)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession1)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession2)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession2)
+Variable Input was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession3)
+Variable RT was not recognised as a variable containing numbers. (Table: ExpE3C26SubjectAFRDATASession3)
+INPUT ppcode:
+afrdemohome
+Save mat file? y/n 
+y
+Saving Mat file to C:\Users\Benjamin\Documents\MATLAB\Git\analysiscode\Demo_AFRdata\afrdemohome.mat

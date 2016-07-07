@@ -62,7 +62,7 @@ disp('Beginning analysis loop...')
 %%Variable and function setup
 addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes')); %Make sure the Toolboxes are active
 
-%focusing on combined datafiles first (using indvars.levelscomb)
-
-% [] = analysecomb(Mats, settings); %analyse function here... this will produde the plots and excel files
+% Run the analysis! This will produde the plots and excel files
+analyse(Mats, settings, 'comb'); %combined data files first
+analyse(Mats, settings, 'sep');
 
