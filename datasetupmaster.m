@@ -9,7 +9,7 @@ loadsettings; %Loads the settings struct
 
 disp('Running pp setup loop...')
 
-exptnum = input('This data is from which experiment #...\n');
+exptnum = input('Type in the Study #...\n');
 
 more = input('Set up a pp data file? y/n \n','s');
 while 1
@@ -61,8 +61,6 @@ disp('Beginning analysis loop...')
 
 %%Variable and function setup
 addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes')); %Make sure the Toolboxes are active
-
-loadsettings; %make sure settings are loaded (they should be?)
 
 %focusing on combined datafiles first (using indvars.levelscomb)
 

@@ -1,0 +1,4 @@
+Fitting function.....
+done:
+Threshold estimate: 108.8015
+Slope estimate: 3.8344

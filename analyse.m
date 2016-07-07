@@ -1,9 +1,9 @@
-%% Proper Fit Plot FOR COMBINED (NO DIVIDING BY SESSION)
+%% Proper Fit Plot
 % Create a 'Plots' folder to receive!!
 
 % NB: Mats file list (cell) will be made by the Master script
 
-function [] = analysecomb(Mats, settings, combset)
+function [] = analyse(Mats, settings, combset)
 %indvars contains the list of indipendent variable levels corresponding to
 %each expt file. It's contained within Mats.
 %settings contains the settings for the expt (e.g. name and number of IV's,
@@ -13,17 +13,24 @@ function [] = analysecomb(Mats, settings, combset)
 
 %%
 for cmf = 1:length(Mats)
-
+    
     load(Mats{cmf}) % Load the Current Mat File
+    % Constants for this PP
     
     setting = settings(exptnum);
 
-    if strcmp(combset,'comb')
+    if strcmp(combset,'comb') %check if combined expt files are being analysed, or individual runs
         ct = fieldnames(datacomb);
+        data2analyse = datacomb;
         ivlevels = {indvars.levelscomb}.';
-    else %if not nombined, then individual
+        cofref = 'Combined\'; %combined folder ref
+        xlshnm = 'fromfitcom'; %Excel sheet name
+    else %if not nombined, then individual/'separate' runs
         ct = fieldnames(data);
+        data2analyse = data;
         ivlevels = {indvars.levels}.';
+        cofref = [];
+        xlshnm = 'fromfitsep'; 
     end
     
     for tt = 1:length(ivlevels) %set up a transposed version of ivlevels for Excel Table
@@ -42,8 +49,8 @@ for i = 1:length(ct)
         
 % Start calculating    
 
-StimLevels = datacomb.(tablename).(setting.psykvn)'; %get the Psykinematix variable name e.g. Stimulusduration
-NumPos = datacomb.(tablename).Response';                    
+StimLevels = data2analyse.(tablename).(setting.psykvn)'; %get the Psykinematix variable name e.g. Stimulusduration
+NumPos = data2analyse.(tablename).Response';                    
 OutOfNum = ones(1,length(NumPos));     
 
 [StimLevels NumPos OutOfNum] = PAL_PFML_GroupTrialsbyX(StimLevels, NumPos, OutOfNum);
@@ -51,7 +58,7 @@ OutOfNum = ones(1,length(NumPos));
 ProportionCorrectObserved=NumPos./OutOfNum; 
 StimLevelsFineGrain=[min(StimLevels):max(StimLevels)./1000:max(StimLevels)];
 
-diary([pn,'Combined\','Outputs\',IVthisfile{:},strrep(num2str(fix(clock)),'    ',[]),'.txt'])
+diary([pn,cofref,'Outputs\',IVthisfile{:},strrep(num2str(fix(clock)),'    ',[]),'.txt'])
 
 message = 'Bootstrapping on?';
 boots = 1; %input(message);
@@ -200,8 +207,8 @@ dtab = [AlphaEst(i,1); SlopeEst(i,1); AlphaSE(i,1); SlopeSE(i,1);Deviance(i,1); 
 thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
 
 %Save
-saveas(gcf,[pn,'Combined\','Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.png'])
-saveas(gcf,[pn,'Combined\','Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.fig'])
+saveas(gcf,[pn,cofref,'Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.png'])
+saveas(gcf,[pn,cofref,'Fitting\',IVthisfile,'_',strrep(num2str(fix(clock)),'    ',[]),'.fig'])
 
 
 close all
@@ -209,11 +216,8 @@ close all
 clear StimLevels NumPos OutOfNum 
 end
 
-% [a b c] = ivlevels{:}; %or use deal
-% ivlevelst is set at the beginning, as it's a constant
-
 T = table(ivlevelst{:},DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
-writetable(T,[pn,ppcode,'.xlsx'],'Sheet','fromfitcom')
+writetable(T,[pn,ppcode,'.xlsx'],'Sheet',xlshnm)
 
 % ratiotable = {[],'3 - LAT','3 - MID','92 - LAT','92 - MID';...
 %     1.50000000000000,'=N12/MIN($N$12:$Q$14)','=O12/MIN($N$12:$Q$14)','=P12/MIN($N$12:$Q$14)','=Q12/MIN($N$12:$Q$14)';...
