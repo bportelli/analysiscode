@@ -1,6 +1,6 @@
 %settings(2) is settings for expt 2
 settings(2).ivs = 3; %there are 3 ivs (mcue, size and cont)
-settings(2).ivnames = {'Mcue','W','C'}; %the independent variable names
+settings(2).ivnames = {'MC','Wid','Con'}; %the independent variable names
 settings(2).thv = 'Duration (ms)'; %the 'thresholded variable'
 settings(2).psykvn = 'Stimulusduration'; %the 'thresholded variable' reference (Psykinematix variable name)
 %ivtables(1) is mcue
@@ -25,7 +25,7 @@ settings(2).ivtables(3).list = [3,92];
 
 %settings(3) is settings for expt 3
 settings(3).ivs = 2; %there are 2 ivs (mcue and spd)
-settings(3).ivnames = {'Mcue','Sp'}; %the independent variable names
+settings(3).ivnames = {'MC','Spd'}; %the independent variable names
 settings(3).thv = 'Motion Coherence'; %mv is the 'thresholded variable'
 settings(3).psykvn = 'Stimuluscoher'; %the Psykinematix variable name
 %ivtables(1) is mcue

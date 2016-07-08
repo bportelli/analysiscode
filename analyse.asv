@@ -67,7 +67,7 @@ ProportionCorrectObserved=NumPos./OutOfNum;
 StimLevelsFineGrain=[min(StimLevels):max(StimLevels)./1000:max(StimLevels)];
 
 diary([pn,cofref,'Outputs\',IVthisfile{:},strrep(num2str(fix(clock)),'    ',[]),'.txt'])
-disp(['Commencing Analysis of ',cofref,' data files...'])
+disp(['Commencing Analysis of ',cofref,' data files'])
 
 message = 'Bootstrapping on?';
 boots = 1; %input(message);
@@ -197,7 +197,7 @@ diary off
 %Storage for Excel Table
 
 % Condition{i,1} = latormid;
-Threshold(i,1) = tx;
+DurationThreshold(i,1) = tx;
 % Width(i,1) = str2num(widstr);
 % Contrast(i,1) = str2num(contraststr);
 
@@ -226,7 +226,7 @@ clear StimLevels NumPos OutOfNum
 end
 
 T1 = table(ivlevelst{:},'VariableNames',setting.ivnames);
-T2 = table(Threshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
+T2 = table(DurationThreshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
 
 writetable([T1 T2],[pn,ppcode,'.xlsx'],'Sheet',xlshnm)
 
