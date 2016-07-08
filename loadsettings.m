@@ -26,7 +26,7 @@ settings(2).ivtables(3).list = [3,92];
 %settings(3) is settings for expt 3
 settings(3).ivs = 2; %there are 2 ivs (mcue and spd)
 settings(3).ivnames = {'MC','Spd'}; %the independent variable names
-settings(3).thv = 'Motion Coherence'; %mv is the 'thresholded variable'
+settings(3).thv = 'Motion Coherence'; %thv is the 'thresholded variable'
 settings(3).psykvn = 'Stimuluscoher'; %the Psykinematix variable name
 %ivtables(1) is mcue
 settings(3).ivtables(1).keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; 
@@ -39,11 +39,14 @@ settings(3).ivtables(2).list = [0.3,0.9,2];
 %settings(4) is settings for expt 4
 settings(4).ivs = 3; %there are 2 ivs (mcue and spd)
 settings(4).ivnames = {'MC','Wi','Co'}; %the independent variable names
-settings(4).thv = 'Duration (ms)'; %mv is the 'thresholded variable'
+settings(4).thv = 'Duration (ms)'; %thv is the 'thresholded variable'
 settings(4).psykvn = 'Stimulusdur'; %the Psykinematix variable name
-%ivtables(1) is mcue %% FIX THE REST
-settings(4).ivtables(1).keywds = {' MiD ',' L ','CD_','IOVD_','full_'}; 
-settings(4).ivtables(1).list = {'MID','LAT','CD','IOVD','FULL'};
-%ivtables(2) is spd
-settings(4).ivtables(2).keywds = {'spd0.3','spd0.9','spd2'}; 
-settings(4).ivtables(2).list = [0.3,0.9,2];
+%ivtables(1) is mcue
+settings(4).ivtables(1).keywds = {' MiD ',' L ','Lateral','CD_','IOVD_','full_'}; 
+settings(4).ivtables(1).list = {'MID','LAT','Lateral','CD','IOVD','FULL'};
+%ivtables(2) is width
+settings(4).ivtables(2).keywds = {'w1.6','w2.8','w4','w8'}; 
+settings(4).ivtables(2).list = [1.6,2.8,4,8];
+%ivtables(3) is contrast
+settings(4).ivtables(3).keywds = {'c9','c20','c92'}; 
+settings(4).ivtables(3).list = [9,20,92];
