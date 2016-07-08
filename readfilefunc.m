@@ -51,16 +51,16 @@ for iva = 1:setting.ivs
     
      try
         indvars(iva).levels(a) = ivtable.list(chk); %The corresponding iv level (from list) to the found keywd is noted
-    catch
+     catch
+        disp(['CANNAE FIND IV #',num2str(iva),' FOR FILE #',num2str(a)])
         if sum(chk) == 0
-            disp(['CANNAE FIND IV #',num2str(iva),' FOR FILE #',num2str(a)])
-            indvars(iva).levels{a} = 'UNK';
+            indvars(iva).levels(a) = 'UNK';
         else
             error('There was an error with the independent variable detection.')
         end
     end
         
-    clear chk
+    clear chk k
 end
       
     %%

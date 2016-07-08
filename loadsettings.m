@@ -48,5 +48,5 @@ settings(4).ivtables(1).list = {'MID','LAT','Lateral','CD','IOVD','FULL'};
 settings(4).ivtables(2).keywds = {'w1.6','w2.8','w4','w8'}; 
 settings(4).ivtables(2).list = [1.6,2.8,4,8];
 %ivtables(3) is contrast
-settings(4).ivtables(3).keywds = {'c9','c20','c92'}; 
-settings(4).ivtables(3).list = [9,20,92];
+settings(4).ivtables(3).keywds = {'c09','c20','c92','c35'}; 
+settings(4).ivtables(3).list = [9,20,92,35];
