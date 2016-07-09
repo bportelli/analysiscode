@@ -25,12 +25,14 @@ for cmf = 1:length(Mats)
         ivlevels = {indvars.levelscomb}.';
         cofref = 'Combined\'; %combined folder ref
         xlshnm = 'fromfitcom'; %Excel sheet name
+        sess = []; %session numbers n/a with combined files
     else %if not nombined, then individual/'separate' runs
         ct = fieldnames(data);
         data2analyse = data;
         ivlevels = {indvars.levels}.';
         cofref = [];
-        xlshnm = 'fromfitsep'; 
+        xlshnm = 'fromfitsep';
+        sess = table(cellfun(@(x)(x(end)),ct),'VariableNames',{'Session'}); %Make the 'table' of session numbers, ready to be put in the final table. Note that this returns a table of numbers formatted as STRINGS, which is helpful when making IVthisfile.
     end
     
     for tt = 1:length(ivlevels) %set up a transposed version of ivlevels for Excel Table
@@ -44,6 +46,8 @@ for cmf = 1:length(Mats)
     
 for i = 1:length(ct)
 
+    %% Naming Setups
+    
     tablename = ct{i};
     
     for v = 1:length(ivlevels) %Set up a name for output files based on IV's of this file
@@ -54,8 +58,11 @@ for i = 1:length(ct)
         IVthisfile{v*2} = [char(ivlevels{v}(i)), '_'];
         end
     end
+    if ~isempty(sess) %i.e. if there are session numbers, because sep. files are being analysed
+        IVthisfile(end+1) = {['S',sess.Session(i)]}; %NB: this only works because sess.Session is considered to be a list of STRINGS not numbers. If this changes, need to use num2str
+    end
         
-% Start calculating    
+%% Start calculating    
 
 StimLevels = data2analyse.(tablename).(setting.psykvn)'; %get the Psykinematix variable name e.g. Stimulusduration
 NumPos = data2analyse.(tablename).Response';                    
@@ -228,7 +235,7 @@ end
 T1 = table(ivlevelst{:},'VariableNames',setting.ivnames);
 T2 = table(Threshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue);
 
-writetable([T1 T2],[pn,ppcode,'.xlsx'],'Sheet',xlshnm)
+writetable([T1 sess T2],[pn,ppcode,'.xlsx'],'Sheet',xlshnm) %Writes the Excel Table. Also includes Session numbers (if they exist)
 
 % ratiotable = {[],'3 - LAT','3 - MID','92 - LAT','92 - MID';...
 %     1.50000000000000,'=N12/MIN($N$12:$Q$14)','=O12/MIN($N$12:$Q$14)','=P12/MIN($N$12:$Q$14)','=Q12/MIN($N$12:$Q$14)';...
