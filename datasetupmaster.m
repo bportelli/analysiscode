@@ -24,7 +24,7 @@ while 1
         save([pn ppcode '.mat'],'exptnum','-append') %save the exptnum, for accessing settings in future
         save([pn ppcode '.mat'],'data', 'datacomb', 'indvars', 'newpoints','-append') %save the new outputs
         
-        clc; close all; clearvars -EXCEPT settings
+        clc; close all; clearvars -EXCEPT settings exptnum
     else
         break
     end

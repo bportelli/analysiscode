@@ -42,8 +42,8 @@ settings(4).ivnames = {'MC','Wi','Co'}; %the independent variable names
 settings(4).thv = 'Duration (ms)'; %thv is the 'thresholded variable'
 settings(4).psykvn = 'Stimulusdur'; %the Psykinematix variable name
 %ivtables(1) is mcue
-settings(4).ivtables(1).keywds = {' MiD ',' L ','Lateral','CD_','IOVD_','full_'}; 
-settings(4).ivtables(1).list = {'MID','LAT','LAT','CD','IOVD','FULL'};
+settings(4).ivtables(1).keywds = {' MiD ',' L ','Lateral','CD_','cd_','IOVD_','iovd_','full_'}; 
+settings(4).ivtables(1).list = {'MID','LAT','LAT','CD','CD','IOVD','IOVD','FULL'};
 %ivtables(2) is width
 settings(4).ivtables(2).keywds = {'w1.6','w2.8','w4','w8'}; 
 settings(4).ivtables(2).list = [1.6,2.8,4,8];
