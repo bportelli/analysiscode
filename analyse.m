@@ -229,7 +229,7 @@ saveas(gcf,[pn,cofref,'Fitting\',IVthisfile{:},'_',strrep(num2str(fix(clock)),' 
 
 close all
 
-clear StimLevels NumPos OutOfNum 
+clear StimLevels NumPos OutOfNum IVthisfile
 end
 
 T1 = table(ivlevelst{:},'VariableNames',setting.ivnames);
