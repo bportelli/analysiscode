@@ -35,9 +35,8 @@ settings(3).ivtables(1).list = {'MID','LAT','CD','IOVD','FULL'};
 settings(3).ivtables(2).keywds = {'spd0.3','spd0.9','spd2'}; 
 settings(3).ivtables(2).list = [0.3,0.9,2];
 
-
-%settings(4) is settings for expt 4
-settings(4).ivs = 3; %there are 2 ivs (mcue and spd)
+%settings(4) is settings for expt 4 - NO LONGER VALID??
+settings(4).ivs = 3; %there are 3 ivs (mcue, width and cont)
 settings(4).ivnames = {'MC','Wi','Co'}; %the independent variable names
 settings(4).thv = 'Duration (ms)'; %thv is the 'thresholded variable'
 settings(4).psykvn = 'Stimulusdur'; %the Psykinematix variable name
@@ -45,8 +44,26 @@ settings(4).psykvn = 'Stimulusdur'; %the Psykinematix variable name
 settings(4).ivtables(1).keywds = {' MiD ',' L ','Lateral','CD_','cd_','IOVD_','iovd_','full_'}; 
 settings(4).ivtables(1).list = {'MID','LAT','LAT','CD','CD','IOVD','IOVD','FULL'};
 %ivtables(2) is width
-settings(4).ivtables(2).keywds = {'w1.6','w2.8','w4','w8'}; 
-settings(4).ivtables(2).list = [1.6,2.8,4,8];
+settings(4).ivtables(2).keywds = {'w1.6','w2.8','w3','w4','w7','w8'}; 
+settings(4).ivtables(2).list = [1.6,2.8,3,4,7,8];
 %ivtables(3) is contrast
 settings(4).ivtables(3).keywds = {'c09','c20','c92','c35'}; 
 settings(4).ivtables(3).list = [9,20,92,35];
+
+
+%% NO LONGER VALID??
+% %settings(4) is settings for expt 4
+% settings(4).ivs = 3; %there are 2 ivs (mcue and spd)
+% settings(4).ivnames = {'MC','Wi','Co'}; %the independent variable names
+% settings(4).thv = 'Duration (ms)'; %thv is the 'thresholded variable'
+% settings(4).psykvn = 'Stimulusdur'; %the Psykinematix variable name
+% %ivtables(1) is mcue
+% settings(4).ivtables(1).keywds = {' MiD ',' L ','Lateral','CD_','cd_','IOVD_','iovd_','full_'}; 
+% settings(4).ivtables(1).list = {'MID','LAT','LAT','CD','CD','IOVD','IOVD','FULL'};
+% %ivtables(2) is width
+% settings(4).ivtables(2).keywds = {'w1.6','w2.8','w4','w8'}; 
+% settings(4).ivtables(2).list = [1.6,2.8,4,8];
+% %ivtables(3) is contrast
+% settings(4).ivtables(3).keywds = {'c09','c20','c92','c35'}; 
+% settings(4).ivtables(3).list = [9,20,92,35];
+

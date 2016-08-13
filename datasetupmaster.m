@@ -13,7 +13,7 @@ exptnum = input('Type in the Study #...\n');
 
 more = input('Set up a pp data file? y/n \n','s');
 while 1
-    if or(more == 'y', more == 'Y')    
+    if lower(more) == 'y'    
     
         [imported, indvars, pn, ppcode] = readfilefunc(exptnum, settings); %import the Psykinematix outputs from "New Discrimination" tables.
         %This funtion outputs imported: a struct of all data tables (one per expt
