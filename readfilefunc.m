@@ -53,9 +53,9 @@ for iva = 1:setting.ivs
         indvars(iva).levels(a) = ivtable.list(chk); %The corresponding iv level (from list) to the found keywd is noted
      catch
         disp(['CANNAE FIND IV #',num2str(iva),' FOR FILE #',num2str(a)])
-        if sum(chk) == 0
+        if sum(chk) == 0 %None of the available options is detected
             indvars(iva).levels(a) = 'UNK';
-        else
+        else %More than one option detected?
             error('There was an error with the independent variable detection.')
         end
     end
@@ -92,7 +92,7 @@ end
         %TIP: Use char(9) if you want to refer to TAB using strtok
         
         r=1;
-        while ~isequal(line,''); %each row of table PLUS headers
+        while and(~feof(blockFID),~isequal(line,'')); %each row of table PLUS headers
             
             c=1;
             line = fgetl(blockFID); %start a new line
