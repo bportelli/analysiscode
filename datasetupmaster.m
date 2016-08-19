@@ -24,7 +24,9 @@ while 1
         save([pn ppcode '.mat'],'exptnum','-append') %save the exptnum, for accessing settings in future
         save([pn ppcode '.mat'],'data', 'datacomb', 'indvars', 'newpoints','-append') %save the new outputs
         
-        clc; close all; clearvars -EXCEPT settings exptnum
+        curr_mat_loc = [pn ppcode]; %current mat file location... to make the next step easier
+        
+        clc; close all; clearvars -EXCEPT settings exptnum curr_mat_loc
     else
         break
     end
@@ -37,12 +39,16 @@ end
 disp('Beginning MAT file choice loop...')
 disp('Select a MAT file to analyse...')
 
+if ~exist('curr_mat_loc','var')
+curr_mat_loc = [];
+end
+
 mat = 0;
 more = 'y';
 while 1
     if or(more == 'y', more == 'Y')
         mat = mat+1;
-        [fn, pn] = uigetfile('.mat'); %Needs to be in a loop because it doesn't handle multiple pn's (??)
+        [fn, pn] = uigetfile('.mat',curr_mat_loc); %Needs to be in a loop because it doesn't handle multiple pn's (??)
         fn = gfcheck(fn,'char');
         Mats{mat} = [pn fn];
         copyfile('C:\Users\bjp4\Documents\MATLAB\Study 3 Analysis\Folder structure',pn) %NB: Copy the Folder Structure to pn

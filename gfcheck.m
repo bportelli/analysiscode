@@ -16,7 +16,7 @@ else if iscell(fn)
         end     
         return
     else if fn == 0
-            warning('No file selected. Press Ctrl + C to terminate.')
+            warning('No file selected. Press Ctrl + C to terminate script, or any key to carry on.')
             pause
             return
         end
