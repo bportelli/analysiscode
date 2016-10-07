@@ -2,12 +2,19 @@
 % Just fit the function and generate the plots: keep it simple!
 % NB: This is NOT compatible with tables from demo files
 
-function [] = analyse710()
+function [] = analyse710(data)
 
 %sprintf('%0.0f',clock) %to give names
 
 % Constants
-currentTable = ?? %GET THIS
+currentTable = input('INPUT TABLE NAME','s'); %GET THIS
+currentTable = data.(currentTable);
+
+
+        PF = @PAL_Weibull;  %Alternatives: PAL_Gumbel, PAL_Weibull,
+        %PAL_CumulativeNormal, PAL_HyperbolicSecant,
+        %PAL_Logistic
+        
 
 whenRun = datetime;
 anaID = sprintf('%0.0f',clock);
@@ -91,11 +98,13 @@ diary off
         fi = fieldnames(currenttable);
         disp(fi)
         disp('Which of these is the thresholded variable?')
-        thVar = input('');
+        thVar = input('','s');
         
         if ~any(ismember(fi,thVar)) %if it's not on the list, start again
             disp('INVALID RESPONSE')
-            getThVar()
+            error() % PUT this here to deal with the fact that it doesn't take the corrected response. Fix this.
+            getThVar(currenttable)
+            return
         end
     end
 
@@ -123,13 +132,9 @@ diary off
         searchGrid.lambda = 0.05;  %ditto
         %searchGrid.lambda = 0:.001:.1;
         
+        %Fit a function
         %Threshold and Slope are free parameters, guess and lapse rate are fixed
         paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
-        
-        %Fit a function
-        PF = @PAL_Weibull;  %Alternatives: PAL_Gumbel, PAL_Weibull,
-        %PAL_CumulativeNormal, PAL_HyperbolicSecant,
-        %PAL_Logistic
         
         %Optional:
         options = PAL_minimize('options');   %type PAL_minimize('options','help') for help
@@ -217,7 +222,7 @@ diary off
         title(plottitle,'interpreter','none');
         
         %Threshold marker
-		tx = PF(paramsValues,0.75,'Inverse');
+		tx = PF(PsychFunOut.paramsValues,0.75,'Inverse');
 		if and(tx<(0.9*max(StimLevels)),tx>(min(StimLevels)))
 		plot(tx,0.75,'bx')
 		text(tx,0.75,['  ',num2str(tx)])
@@ -257,7 +262,7 @@ diary off
 		varns = {'AlphaEst','SlopeEst'};
 		dtab = [AlphaEst; SlopeEst];
 		thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
-		T1 = table(anaID, Threshold, AlphaEst, SlopeEst,);
+		T1 = table(anaID, Threshold, AlphaEst, SlopeEst);
 		end	
 	end
 	

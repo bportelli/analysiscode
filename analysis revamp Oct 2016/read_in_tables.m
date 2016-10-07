@@ -5,6 +5,8 @@ function [imported, indvars, pn, readID, varsetup, expName, expDateSess ] = read
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
 
+%ppcode = input('Input ppcode\n','s'); %ADD THIS TO SAVE LIST IF USING IT
+
 readID = sprintf('%0.0f',clock);
 
 fileID = fopen([pn readID '_Details.txt'],'w');
@@ -76,12 +78,12 @@ data.(impnames{j}([1:x-1,y+1:end])) = imported.(impnames{j});
 end
 
 
-% disp('Saving Mat file to expt file directory...')
-sa = input('Save mat file? y/n \n','s');
-if sa == 'y'
+%  disp('Saving Mat file to expt file directory...')
+% sa = input('Save mat file? y/n \n','s');
+% if sa == 'y'
     save([pn,readID,'.mat'],'blockFID','fn','imported','pn','readID','varsetup','expName','expDateSess','data')
     disp(['Saving Mat file to ', pn,readID,'.mat'])
-end
+% end
 
 fclose(fileID);
 diary off %stop saving to log file
