@@ -10,6 +10,8 @@ function [imported, indvars, pn, ppcode] = readfilefunc(exptnum, settings)
 %Constants
 
 setting = settings(exptnum);
+expName = {}; %create new cell to receive expt names
+expDateSess = {}; %create new cell to receive expt dates and session
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
 
@@ -25,24 +27,28 @@ for a = 1:length(fn)
     
     blockpath = [pn fn{a}];
     
-    %% Open data file and get motion cue.
+    %% Open data file and get expt details.
     blockFID  = fopen(blockpath, 'r');
-    
     %frewind(blockFID) %USE THIS TO 'REWIND' THE NEXT-LINE-READER fgetl
     
     fgetl(blockFID); fgetl(blockFID); %Skip to the line with the expt name
-    line = fgetl(blockFID);
+    line1 = fgetl(blockFID);
+    expName{end+1} = line1; %Store it for saving later
+    
+    fgetl(blockFID); %Skip to the line with the session number and date
+    line2 = fgetl(blockFID);
+    expDateSess{end+1} = line2; %Store it for saving later
     
 	% How many tables?
     [hmt, tStart] = howManyTables(blockFID);
         
 	if hmt == 1
     %Detecting the IV's from the Expt Name
-    indvars = detect_ivs(line);
+    indvars = detect_ivs(line1);
 	else
 	%Detect the IV's from each table's var settings
 	
-	end
+    end
     
     %Find and Process New Discrimination tables
     [imported, varsetup] = findDiscTables();
@@ -56,7 +62,7 @@ ppcode = input('INPUT ppcode:\n','s');
 % disp('Saving Mat file to expt file directory...')
 sa = input('Save mat file? y/n \n','s');
 if sa == 'y'
-    save([pn,ppcode,'.mat'],'blockFID','fn','imported','indvars','pn','ppcode','varsetup')
+    save([pn,ppcode,'.mat'],'blockFID','fn','imported','indvars','pn','ppcode','varsetup','expName','exptDateSess')
     disp(['Saving Mat file to ', pn,ppcode,'.mat'])
 end
 
@@ -78,7 +84,7 @@ diary off %stop saving to log file
             
             chk = itemIndex(); %returns a logical array corresponding to the position of the found item
             
-            if chk>1
+            if sum(chk)>1
                fprintf('There appear to be %d levels of IV# %d in file # %d\n',sum(chk),num2str(iva),num2str(a))
                disp('You should probably write some code to handle this...')
                pause % WRITE SOME CODE TO DO SOMETHING ABOUT THIS
@@ -92,7 +98,8 @@ diary off %stop saving to log file
                 if sum(chk) == 0 %None of the available options is detected
                     indvars(iva).levels(a) = 'UNK';
                 else %More than one option detected?
-                    error('There was an error with the independent variable detection.')
+                    %error('There was an error with the independent variable detection.')
+                    indvars(iva).levels(a) = 'UNK2';
                 end
             end
         end
