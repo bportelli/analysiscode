@@ -68,10 +68,18 @@ end
 
 clear name1
 
+%Make data struct
+impnames = fieldnames(imported);
+for j = 1:length(impnames)
+[x, y] = regexp(impnames{j},'Sub[\w*]+ssion'); %identifies the text to cut out for the name
+data.(impnames{j}([1:x-1,y+1:end])) = imported.(impnames{j});
+end
+
+
 % disp('Saving Mat file to expt file directory...')
 sa = input('Save mat file? y/n \n','s');
 if sa == 'y'
-    save([pn,readID,'.mat'],'blockFID','fn','imported','pn','readID','varsetup','expName','expDateSess')
+    save([pn,readID,'.mat'],'blockFID','fn','imported','pn','readID','varsetup','expName','expDateSess','data')
     disp(['Saving Mat file to ', pn,readID,'.mat'])
 end
 
