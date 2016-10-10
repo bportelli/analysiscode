@@ -2,14 +2,19 @@
 % Just fit the function and generate the plots: keep it simple!
 % NB: This is NOT compatible with tables from demo files
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
+% NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710(data, expName, expDateSess)
+function [] = analyse710_demos(data, expName, expDateSess)
 
 %sprintf('%0.0f',clock) %to give names
 
+% notDemos = find(cellfun(@(x)isempty(x),(regexp(expName,'demo')))); %find the indices of files that are not demo files
+
 % Add Palamedes to path
 %addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
-
+k=1;
+        while k <= length(fieldnames(data)) 
+            
 %% Constants
 WHENRUN = datetime;
 AnaID = sprintf('%0.0f',clock);
@@ -73,24 +78,40 @@ saveas(fhand,[TempSaveDir AnaID '.fig'])
 
 diary off
 
+k = plus(k,1); %increment k AND...
+
+while k <= length(fieldnames(data)) && ~isempty(regexp(expName{k},'demo','ONCE'))
+    %...check if this is a demo file, increment again if so (PRESERVE THE ABOVE ORDER for the short-circuit AND)
+    k = plus(k,1);
+end
+    
+        end
 
 %% Sub-functions
 
     function [currentTable, cTix] = getCurrentTable()
         fnD = fieldnames(data);
         disp([fnD, expName'])
-        currentTable = input('INPUT TABLE NAME\n','s'); %GET THIS
+        disp('TABLE NAME');
+        currentTable = fnD{k};
+        disp(currentTable)
         cTix = ismember(fnD,currentTable);
         fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
-        ctn = input('Continue (1) or Re-select (0)?\n');
+        ctn = input('Continue (1) or select another(0)?\n');
+        if ~isempty(ctn)
         switch ctn
-            case 0 %re-select
-                [currentTable, cTix] = getCurrentTable();
-                return
+            case 0 %select other
+                currentTable = input('INPUT TABLE NAME\n','s');
+                cTix = ismember(fnD,currentTable);
+                fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
+                k = find(cTix);
             case 1
                 %just carry on
             otherwise
-                %just carry on
+                disp('INVALID INPUT')
+                [currentTable, cTix] = getCurrentTable();
+                return
+        end
         end
         currentTable = data.(currentTable);
     end
@@ -118,8 +139,12 @@ diary off
     function thVar = getThVar(currenttable)
         fi = fieldnames(currenttable);
         disp(fi)
-        disp('Which of these is the thresholded variable?')
-        thVar = input('','s');
+        thVar = 'Stimulusdur';
+        fprintf('%s is the thresholded variable. Enter to confirm, or Type another one.',thVar)
+        thQ = input('','s');
+        if ~isempty(thQ)
+            thVar = thQ;
+        end
         
         if ~any(ismember(fi,thVar)) %if it's not on the list, start again
             disp('INVALID RESPONSE')
@@ -238,7 +263,8 @@ diary off
         ylabel('Proportion Correct');
         
         % Make a title
-        name = inputdlg('Name the plot?')
+        %name = inputdlg('Name the plot?')
+        name = {'JR'};
         plottitle = [AnaID ' ' name{1} ' ' expName{cTix}];
         title(plottitle,'interpreter','none');
         

@@ -19,9 +19,13 @@ diary([pn 'readfilelog.txt']) %Make log file
 
 [fn] = gfcheck(fn,'cell'); %'cell' specifies that fn should be a cell array
 
+% Waitbar setup
+a=0;
+w = waitbar(a/length(fn),'Reading...');
+
 for a = 1:length(fn)
     
-    waitbar(a/length(fn))
+    waitbar(a/length(fn),w); % update waitbar
     
     name1 = fn{a}(~ismember(fn{a},' ,.:;!()%#_'));
     name1 = name1(1:end-3); %Remove txt from end
@@ -182,5 +186,12 @@ diary off %stop saving to log file
             %         clearvars -EXCEPT imported fn pn a blockFID loopcount name1 spd varsetup setting settings indvars
         end
     end    
+
+
+% Update and delete waitbar
+%set(get(findobj(w,'type','axes'),'title'), 'string', 'FINISHED!');
+waitbar(1,w,'FINISHED!');
+pause(0.5)
+delete(w)
 
 end
