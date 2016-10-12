@@ -56,12 +56,8 @@
 %To find demo files
 %demoIX = find(cellfun(@(x)~isempty(x),(regexp(expName,'demo'))));
 
-demoIX = cellfun(@(x)~isempty(x),(regexp(expName_all,'demo')));
-
-
 %To find the ones pertaining to THIS experiment
-da = cellfun(@(x)(datenum(x(5:12),'dd/mm/yy'))>=datenum('10/06/2016','dd/mm/yy'),expDateSess_all);
-%736491
+736491
 
 logID = sprintf('%0.0f',clock);
 
