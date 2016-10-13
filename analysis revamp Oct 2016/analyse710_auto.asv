@@ -1,11 +1,10 @@
 %% Simple Analysis And Plot
 % Just fit the function and generate the plots: keep it simple!
-% NB: This is NOT compatible with tables from demo files - it automatically
-% skips them!
+% NB: This is NOT compatible with tables from demo files
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
 % NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710_auto(data, expName, expDateSess, pn)
+function [] = analyse710_demos(data, expName, expDateSess, pn)
 
 %sprintf('%0.0f',clock) %to give names
 
@@ -13,9 +12,6 @@ function [] = analyse710_auto(data, expName, expDateSess, pn)
 
 % Add Palamedes to path
 %addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
-
-name = input('INPUT NAME FOR PLOT\n','s');
-
 k=1;
         while k <= length(fieldnames(data)) 
             
@@ -64,7 +60,7 @@ if boots == 1
 end
 
 % Make a simple plot
-[fhand, tx] = makePlot(name);
+[fhand, tx] = makePlot();
 
 try
     T1 = outputSaveFitDetails(fhand); %This must be before closing and saving the figure
@@ -103,7 +99,7 @@ end
         disp(currentTable)
         cTix = ismember(fnD,currentTable);
         fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
-        ctn = [];%input('Continue (1) or select another(0)?\n');
+        ctn = input('Continue (1) or select another(0)?\n');
         if ~isempty(ctn)
         switch ctn
             case 0 %select other
@@ -147,15 +143,14 @@ end
         disp(fi)
         thVar = 'Stimulusdur';
         fprintf('%s is the thresholded variable. Enter to confirm, or Type another one.',thVar)
-        thQ = [];%input('','s');
+        thQ = input('','s');
         if ~isempty(thQ)
             thVar = thQ;
         end
         
         if ~any(ismember(fi,thVar)) %if it's not on the list, start again
-            disp('INVALID THRESHOLDED VARIABLE')
-            %error('') % PUT this here to deal with the fact that it doesn't take the corrected response. Fix this.
-            pause
+            disp('INVALID RESPONSE')
+%             error() % PUT this here to deal with the fact that it doesn't take the corrected response. Fix this.
             thVar = getThVar(currenttable);
         end
     end
@@ -257,7 +252,7 @@ end
         
     end
 
-    function [fhand, tx] = makePlot(name)
+    function [fhand, tx] = makePlot()
         
         close gcf
         
@@ -273,7 +268,7 @@ end
         
         % Make a title
         %name = inputdlg('Name the plot?')
-        name = {name};
+        name = {''};
         plottitle = [AnaID ' ' name{1} ' ' expName{cTix}];
         title(plottitle,'interpreter','none');
         

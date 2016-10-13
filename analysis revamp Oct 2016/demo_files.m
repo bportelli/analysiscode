@@ -56,11 +56,19 @@
 %To find demo files
 %demoIX = find(cellfun(@(x)~isempty(x),(regexp(expName,'demo'))));
 
-demoIX = cellfun(@(x)~isempty(x),(regexp(expName_all,'demo')));
+demoIX = cellfun(@(x)~isempty(x),(regexp(expName,'demo')));
 
+pname = input('ENTER NAME FOR PLOT\n','s');
+
+% for k = 1:15
+% [fn, pn] = uigetfile();
+% load([pn fn],'expName')
+% demoIX{k} = any(cellfun(@(x)~isempty(x),(regexp(expName,'demo'))));
+% clear expName
+% end
 
 %To find the ones pertaining to THIS experiment
-da = cellfun(@(x)(datenum(x(5:12),'dd/mm/yy'))>=datenum('10/06/2016','dd/mm/yy'),expDateSess_all);
+% da = cellfun(@(x)(datenum(x(5:12),'dd/mm/yy'))>=datenum('10/06/2016','dd/mm/yy'),expDateSess_all);
 %736491
 
 logID = sprintf('%0.0f',clock);
@@ -69,6 +77,8 @@ diary([pn logID '_makebars_log.txt'])
 
 ct = fieldnames(data);
 ct = ct(demoIX);%limit to demo files only
+expName = expName(demoIX);
+expDateSess = expDateSess(demoIX);
 
 scores = nan(1,length(ct));
 
@@ -103,7 +113,7 @@ for l = 1:2
         
         %makeTitle = input('Write Title as NAME - MCUE - CONT\n','s');
         
-        title([expName{min(triplet)} ' ' msgTitle{l} ' ' expDateSess{min(triplet)}],'interpreter','none')
+        title([expName{min(triplet)} pname ' ' msgTitle{l} ' ' expDateSess{min(triplet)}],'interpreter','none')
         
         %pause
         

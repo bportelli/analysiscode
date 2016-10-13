@@ -1,0 +1,7 @@
+ [imported, indvars, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold();
+ 
+ [pn fn] = uigetfile(,pn);
+ 
+ clearvars -EXCEPT pn fn
+ 
+ load([pn fn])

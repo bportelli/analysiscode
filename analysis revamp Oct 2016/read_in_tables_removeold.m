@@ -1,9 +1,13 @@
-function [imported, indvars, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold()
+function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold()
 %% Function to read data files and extract New Discrimination tables
 % Tables are not necessarily from same experiment or participant. 
 % This just creates a mat file that holds a bunch of tables, and a txt file to tell you what's in there. That's it.
+% This normally deletes files before a certain date... however this feature is
+% currently commented out
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
+
+copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
 
 %ppcode = input('Input ppcode\n','s'); %ADD THIS TO SAVE LIST IF USING IT
 
@@ -42,11 +46,11 @@ for a = 1:length(fn)
     fgetl(blockFID); %Skip to the line with the session number and date
     line2 = fgetl(blockFID);
     
-    if datenum(line2(5:12),'dd/mm/yy')< datenum('14/06/2016','dd/mm/yy')
-        fclose('all')
-        delete([pn fn{a}])
-        continue
-    end
+%     if datenum(line2(5:12),'dd/mm/yy')< datenum('14/06/2016','dd/mm/yy')
+%         fclose('all')
+%         delete([pn fn{a}])
+%         continue
+%     end
     
     fprintf(fileID,'%s \r\n %s \r\n',line1,line2)
     
