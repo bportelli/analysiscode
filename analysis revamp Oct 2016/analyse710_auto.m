@@ -1,11 +1,10 @@
 %% Simple Analysis And Plot
 % Just fit the function and generate the plots: keep it simple!
-% NB: This is NOT compatible with tables from demo files - it automatically
-% skips them!
+% NB: This is NOT compatible with tables from demo files - it automatically skips them!
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
 % NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710_auto(data, expName, expDateSess, pn)
+function [] = analyse710_auto(data, expName, expDateSess, readID, pn)
 
 %sprintf('%0.0f',clock) %to give names
 
@@ -15,23 +14,29 @@ function [] = analyse710_auto(data, expName, expDateSess, pn)
 %addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
 
 name = input('INPUT NAME FOR PLOT\n','s');
+combi = input('Is this a single (Enter) or combi (1) file?');
+
+if combi
+    %TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
+    TempSaveDir = [pn '\Combined\'];
+else
+    TempSaveDir = [pn '\Incoming\'];
+end
 
 k=1;
         while k <= length(fieldnames(data)) 
             
 %% Constants
 WHENRUN = datetime;
+mainMAT = readID;
 AnaID = sprintf('%0.0f',clock);
-%TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
-
-TempSaveDir = [pn '\Incoming\'];
 
 PF = @PAL_Weibull;  %Alternatives: PAL_Gumbel, PAL_Weibull,
 %PAL_CumulativeNormal, PAL_HyperbolicSecant,
 %PAL_Logistic
 
 % Create TEMP SAVE MAT file and LOG
-save([TempSaveDir AnaID '.mat'], 'WHENRUN');
+save([TempSaveDir AnaID '.mat'], 'WHENRUN','mainMAT');
 diary([TempSaveDir AnaID 'log' '.txt']);
 
 %to append use save([TempSaveDir AnaID '.mat'], 'VARNAME', '-append');
@@ -70,12 +75,14 @@ try
     T1 = outputSaveFitDetails(fhand); %This must be before closing and saving the figure
     if exist('T1','var') %append the table row to the MAT file and output it
         %Table is output
-        writetable(T1,[TempSaveDir, AnaID,'.csv']) %Writes the Table. Maybe better to make it a CSV or tab?
+        writetable(T1,[TempSaveDir, AnaID,'.csv'],'Delimiter','\t') %Writes the Table. Maybe better to make it a CSV or tab?
         %writetable(T1,[TempSaveDir, AnaID,'.xlsx'],'Sheet','Sheet1') %Writes the Table. Maybe better to make it a CSV or tab?
-        save([TempSaveDir AnaID '.mat'], 'T1', '-append');
+        ENameDate = {expName{cTix},expDateSess{cTix}};
+        save([TempSaveDir AnaID '.mat'], 'T1','ENameDate', '-append');
     end
 catch
-    warning('There was an error with generating the figure table output. Threshold-AlphaEst-SlopeEst-etc. table will not be saved')
+    warning('There was an error with generating the figure table output.')
+    warning('Threshold-AlphaEst-SlopeEst-etc. table will not be saved (also other parts of the MAT file).')
 end
 
 saveas(fhand,[TempSaveDir AnaID '.fig'])
@@ -262,7 +269,14 @@ end
         close gcf
         
         fhand = figure('name','Maximum Likelihood Psychometric Function Fitting');
-        plot(StimLevels,ProportionCorrectObserved,'k.','markersize',40);
+        
+        %if combi
+            scatter(StimLevels,ProportionCorrectObserved,...
+                'ko','MarkerFaceColor',[0.5 0.5 0.5],'SizeData',OutOfNum*5);
+        %else
+        %    plot(StimLevels,ProportionCorrectObserved,'k.','markersize',30);
+        %end
+        hold on
         set(gca, 'fontsize',16);
         set(gca, 'Xtick',StimLevels);
         axis([min(StimLevels) max(StimLevels) 0 1]);
@@ -312,15 +326,15 @@ end
             dtab = [Threshold; AlphaEst; SlopeEst; AlphaSE; SlopeSE; Deviance; pvalue];
             thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
             %... and stored in table alongside the AnaID
-            Tc = {AnaID,Threshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue};
-            T1 = cell2table(Tc,'VariableNames',{'AnaID','Threshold','AlphaEst','SlopeEst','AlphaSE','SlopeSE','Deviance','pvalue'});
+            Tc = {AnaID,expName{cTix},expDateSess{cTix},Threshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue};
+            T1 = cell2table(Tc,'VariableNames',{'AnaID','ExpName','SessDate','Threshold','AlphaEst','SlopeEst','AlphaSE','SlopeSE','Deviance','pvalue'});
         else
             % Only Threshold, Alpha and Slope appear on axes...
             varns = {'Threshold','AlphaEst','SlopeEst'};
             dtab = [Threshold; AlphaEst; SlopeEst];
-            thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
-            Tc = {AnaID,Threshold,AlphaEst,SlopeEst};
-            T1 = cell2table(Tc,'VariableNames',{'AnaID','Threshold','AlphaEst','SlopeEst'});
+            thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 100]);
+            Tc = {AnaID,expName{cTix},expDateSess{cTix},Threshold,AlphaEst,SlopeEst};
+            T1 = cell2table(Tc,'VariableNames',{'AnaID','ExpName','SessDate','Threshold','AlphaEst','SlopeEst'});
         end
     end
 

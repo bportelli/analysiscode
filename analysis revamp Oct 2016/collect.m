@@ -1,56 +1,61 @@
 %% COLLECT RESULTS INTO ONE TABLE FOR 1 EXPT AND PP
 
+function [k] = collect(ampn)
+
 matID = [sprintf('%0.0f',clock) '_allTogether'];
 
 % k = 1;
 % m = 1;
 % while m % Collect directories with files to combine
-% pn{k} = uigetdir();
+% ampn{k} = uigetdir();
 % k = k+1;
 % m = input('Input 1 to get another directory...\n');
 % end
 
-% load('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Pilots organised (for meeting)\allmats.mat','pn')
+% load('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Pilots organised (for meeting)\allmats.mat','ampn')
 
-for k = 1:length(pn)
-    
-savedir = [pn{k} '\COLLECTED\'];
-mkdir(savedir) % Create the folder to receive the converted files
 
-List = ls(pn{k}); % List all files in pn
-inputFormat = 'mat';
-
-% Set up EMPTY TABLE
-Tcoll = [];
-
-for ii = 3:size(List,1)
-    
-    currFile = strtrim(List(ii,:)); %remove leading or trailing whitespace
-    
-    if strfind(currFile,['.',inputFormat]) > 0 %If it's a MAT file...
-        disp(['Collecting ',currFile])
-        
-        rootDir = [pn{k} '\' currFile]; % WITH THE CURRENT ARRANGEMENT, the RootDir comes from pn... so this needs to be the other way around??
-        rootDir = rootDir(1:regexp(rootDir,'\\Incoming'));
-        
-		load([pn{k} '\' currFile], 'T1','mainName');
-        load([rootDir mainName],'expName');
-        
-		%% Put in some code to collect the ExpName into the table too
-        % MAKE FIRST COLUMN expName, sorted by the 5-7??th chars of expName??
-		
-        T2 = cell2table('');
-        
-		%Then...
-				Tcoll = [Tcoll; T1]; %Add table to collection
-		
-    end
-    
+for k = 1:length(ampn)
+    disp(['Starting ' ampn{k}])
+    collectionProcess()
+    disp('Done.')
 end
 
-save([savedir '\' matID],'Tcom') %save MAT
-writetable(Tcoll,[savedir '\' matID,'.csv'])
 
-disp('Collection complete')
-
+    function collectionProcess()
+%         savedir = [ampn{k} 'COLLECTED\'];
+        savedir = [ampn{k} 'COLLECTED\Combi'];
+        mkdir(savedir) % Create the folder to receive the converted files
+        
+%         incDir = [ampn{k} 'Incoming\'];
+        incDir = [ampn{k} 'Combined\'];
+        
+        List = ls(incDir); % List all files in the Incoming folder
+        inputFormat = 'mat';
+        
+        % Set up EMPTY TABLE
+        Tcoll = [];
+        
+        for ii = 3:size(List,1)
+            
+            currFile = strtrim(List(ii,:)); %remove leading or trailing whitespace
+            
+            if strfind(currFile,['.',inputFormat]) > 0 %If it's a MAT file...
+                disp(['Collecting ',currFile])
+                load([incDir currFile],'T1')
+                Tcoll = [Tcoll; T1]; %Add table to collection
+            end
+            
+        end
+        
+        % sort table by ExpName
+        Tcoll = sortrows(Tcoll,2);
+        
+        save([savedir '\' matID],'Tcoll') %save MAT
+        writetable(Tcoll,[savedir '\' matID,'.csv'])
+        writetable(Tcoll,[savedir '\' matID,'.xls'])
+        
+        disp('Collection complete')
+        
+    end
 end
