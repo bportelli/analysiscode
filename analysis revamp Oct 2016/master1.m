@@ -26,7 +26,7 @@ for k = 1:length(ampn)
 [fn, pn] = uigetfile(ampn{k});
 load([pn fn],'data', 'expName', 'expDateSess', 'readID', 'pn')
 disp(ampn{k})
-analyse710_auto(data, expName, expDateSess, readID, pn)
+analyse710_auto(data, expName, expDateSess, readID, pn) % THIS ALSO DOES COLLECTING NOW
 clearvars -EXCEPT k ampn
 end
 

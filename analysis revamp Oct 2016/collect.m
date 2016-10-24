@@ -23,12 +23,12 @@ end
 
 
     function collectionProcess()
-%         savedir = [ampn{k} 'COLLECTED\'];
-        savedir = [ampn{k} 'COLLECTED\Combi'];
+         savedir = [ampn{k} 'COLLECTED\'];
+%        savedir = [ampn{k} 'COLLECTED\Combi'];
         mkdir(savedir) % Create the folder to receive the converted files
         
-%         incDir = [ampn{k} 'Incoming\'];
-        incDir = [ampn{k} 'Combined\'];
+        incDir = [ampn{k} '\Incoming\'];
+%        incDir = [ampn{k} 'Combined\'];
         
         List = ls(incDir); % List all files in the Incoming folder
         inputFormat = 'mat';
@@ -49,7 +49,11 @@ end
         end
         
         % sort table by ExpName
-        Tcoll = sortrows(Tcoll,2);
+        %[Tcoll, sortix] = sortrows(Tcoll,2);
+        sortix = num2cell(sortix);
+        sortix = cell2table(sortix,'VariableNames',{'Index'});
+            
+        Tcoll = [Tcoll, sortix];
         
         save([savedir '\' matID],'Tcoll') %save MAT
         writetable(Tcoll,[savedir '\' matID,'.csv'])

@@ -23,6 +23,8 @@ else
     TempSaveDir = [pn '\Incoming\'];
 end
 
+Tcoll = [];
+
 k=1;
         while k <= length(fieldnames(data)) 
             
@@ -75,10 +77,12 @@ try
     T1 = outputSaveFitDetails(fhand); %This must be before closing and saving the figure
     if exist('T1','var') %append the table row to the MAT file and output it
         %Table is output
-        writetable(T1,[TempSaveDir, AnaID,'.csv'],'Delimiter','\t') %Writes the Table. Maybe better to make it a CSV or tab?
+        %writetable(T1,[TempSaveDir, AnaID,'.csv'],'Delimiter','\t') %Writes the Table. Maybe better to make it a CSV or tab?
+        
         %writetable(T1,[TempSaveDir, AnaID,'.xlsx'],'Sheet','Sheet1') %Writes the Table. Maybe better to make it a CSV or tab?
         ENameDate = {expName{cTix},expDateSess{cTix}};
         save([TempSaveDir AnaID '.mat'], 'T1','ENameDate', '-append');
+        Tcoll = [Tcoll; T1]; 
     end
 catch
     warning('There was an error with generating the figure table output.')
@@ -99,6 +103,10 @@ while k <= length(fieldnames(data)) && ~isempty(regexp(expName{k},'demo','ONCE')
 end
     
         end
+        
+        save([TempSaveDir 'collectedTable'],'Tcoll') %save MAT
+        writetable(Tcoll,[TempSaveDir 'collectedTable.csv'])
+        writetable(Tcoll,[TempSaveDir 'collectedTable.xls'])
 
 %% Sub-functions
 
@@ -110,7 +118,7 @@ end
         disp(currentTable)
         cTix = ismember(fnD,currentTable);
         fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
-        ctn = [];%input('Continue (1) or select another(0)?\n');
+        ctn = input('Continue (1) or select another(0)?\n');
         if ~isempty(ctn)
         switch ctn
             case 0 %select other
@@ -279,7 +287,8 @@ end
         hold on
         set(gca, 'fontsize',16);
         set(gca, 'Xtick',StimLevels);
-        axis([min(StimLevels) max(StimLevels) 0 1]);
+        %axis([min(StimLevels) max(StimLevels) 0 1]);
+        axis([20 600 0 1]);
         hold on;
         plot(StimLevelsFineGrain,PsychFunOut.ProportionCorrectModel,'g-','linewidth',4);
         xlabel(thVar);
@@ -297,8 +306,9 @@ end
             plot(tx,0.75,'bx')
             text(tx,0.75,['  ',num2str(tx)])
         else
-            plot(median(StimLevels),0.50,'bx')
-            text(median(StimLevels),0.50,['  ',num2str(tx)])
+            plot(median(StimLevels),0.40,'bx')
+            te = text(median(StimLevels),0.40,['  ',num2str(tx)]);
+            set(te, 'FontAngle','italic')
         end
         
         %Plot aesthetics
@@ -327,7 +337,8 @@ end
             thand = uitable(fhand,'Data',dtab,'RowName',varns,'Position',[350 55 170 130]);
             %... and stored in table alongside the AnaID
             Tc = {AnaID,expName{cTix},expDateSess{cTix},Threshold,AlphaEst,SlopeEst,AlphaSE,SlopeSE,Deviance,pvalue};
-            T1 = cell2table(Tc,'VariableNames',{'AnaID','ExpName','SessDate','Threshold','AlphaEst','SlopeEst','AlphaSE','SlopeSE','Deviance','pvalue'});
+            T1 = cell2table(Tc,'VariableNames',...
+                {'AnaID','ExpName','SessDate','Threshold','AlphaEst','SlopeEst','AlphaSE','SlopeSE','Deviance','pvalue'});
         else
             % Only Threshold, Alpha and Slope appear on axes...
             varns = {'Threshold','AlphaEst','SlopeEst'};
