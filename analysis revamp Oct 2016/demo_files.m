@@ -53,10 +53,17 @@
 
 %%
 
+function [] = demo_files(ampnREF)
+
+[fn, pn] = uigetfile(ampnREF);
+load([pn fn])
+
+
 %To find demo files
 %demoIX = find(cellfun(@(x)~isempty(x),(regexp(expName,'demo'))));
 
-demoIX = cellfun(@(x)~isempty(x),(regexp(expName,'demo')));
+%demoIX = cellfun(@(x)~isempty(x),(regexp(expName,'demo')));
+demoIX = cellfun(@(x)~isempty(x),(regexp(expName,'TRAIN')));
 
 pname = input('ENTER NAME FOR PLOT\n','s');
 

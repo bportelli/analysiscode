@@ -1,9 +1,11 @@
 function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold()
 %% Function to read data files and extract New Discrimination tables
-% Tables are not necessarily from same experiment or participant. 
+% Tables are not necessarily from same experiment or participant.
 % This just creates a mat file that holds a bunch of tables, and a txt file to tell you what's in there. That's it.
 % This normally deletes files before a certain date... however this feature is
 % currently commented out
+
+tic
 
 [fn pn] = uigetfile('.txt','MultiSelect','On');
 
@@ -26,6 +28,7 @@ diary([pn 'readfilelog.txt']) %Make log file
 % Waitbar setup
 a=0;
 w = waitbar(a/length(fn),'Reading...');
+war = 0;
 
 for a = 1:length(fn)
     
@@ -46,23 +49,23 @@ for a = 1:length(fn)
     fgetl(blockFID); %Skip to the line with the session number and date
     line2 = fgetl(blockFID);
     
-%     if datenum(line2(5:12),'dd/mm/yy')< datenum('14/06/2016','dd/mm/yy')
-%         fclose('all')
-%         delete([pn fn{a}])
-%         continue
-%     end
+    %     if datenum(line2(5:12),'dd/mm/yy')< datenum('14/06/2016','dd/mm/yy')
+    %         fclose('all')
+    %         delete([pn fn{a}])
+    %         continue
+    %     end
     
     fprintf(fileID,'%s \r\n %s \r\n',line1,line2)
     
-	% How many tables?
+    % How many tables?
     [hmt, tStart] = howManyTables(blockFID);
     fprintf(fileID,'%d table(s) in this output file \r\n',hmt)
-        
+    
     %Detect and show the IV's from each table's var settings
     for tables = 1:hmt
-	    expName{end+1} = line1; %Store it for saving later
-		expDateSess{end+1} = line2; %Store it for saving later
-			
+        expName{end+1} = line1; %Store it for saving later
+        expDateSess{end+1} = line2; %Store it for saving later
+        
         fseek(blockFID, tStart(tables)-19, -1);
         fgetl(blockFID);
         fgetl(blockFID);
@@ -70,15 +73,15 @@ for a = 1:length(fn)
         fprintf(fileID,'%s\r\n \r\n',line)
         varsetup(a).(['table' num2str(tables)]) = line; %save the variable setup for this file
     end
-        
+    
     clear tables
     
-%     disp('paused')
-%     pause
-
+    %     disp('paused')
+    %     pause
+    
     
     %Find and Process New Discrimination tables
-    [varsetup] = findDiscTables();
+    [varsetup,] = findDiscTables();
     
 end
 
@@ -87,17 +90,21 @@ clear name1
 %Make data struct
 impnames = fieldnames(imported);
 for j = 1:length(impnames)
-[x, y] = regexp(impnames{j},'Sub[\w*]+ssion'); %identifies the text to cut out for the name
-data.(impnames{j}([1:x-1,y+1:end])) = imported.(impnames{j});
+    [x, y] = regexp(impnames{j},'Sub[\w*]+ssion'); %identifies the text to cut out for the name
+    data.(impnames{j}([1:x-1,y+1:end])) = imported.(impnames{j});
 end
 
 
 %  disp('Saving Mat file to expt file directory...')
 % sa = input('Save mat file? y/n \n','s');
 % if sa == 'y'
-    save([pn,readID,'.mat'],'blockFID','fn','imported','pn','readID','varsetup','expName','expDateSess','data')
-    disp(['Saving Mat file to ', pn,readID,'.mat'])
+save([pn,readID,'.mat'],'blockFID','fn','imported','pn','readID','varsetup','expName','expDateSess','data')
+disp(['Saving Mat file to ', pn,readID,'.mat'])
 % end
+
+%pause for a bit to make sure duplicate name isn't used for next file (this
+% script must take at least 1 second to run)
+pause(1-toc)
 
 fclose(fileID);
 diary off %stop saving to log file
@@ -107,13 +114,14 @@ diary off %stop saving to log file
 
 
     function [varsetup] = findDiscTables()
-              
+        
         for tables = 1:hmt %Loops to find more New Discrimination tables until end of document
             switch hmt
                 case 1
                     name = name1;
                 case 0
-                    warning('No New Discrimination Tables detected')
+                    warning('No New Discrimination Tables detected') %unnecessary here as for loop shoulnd't run if hmt=0?
+                    war = war+1;
                     pause
                 otherwise
                     name = [name1,num2str(tables)];
@@ -133,10 +141,12 @@ diary off %stop saving to log file
                     varsetup(a).(['table' num2str(tables)]) = line; %save the variable setup for this file
                 else
                     warning('This should be the start of the New Discrimination Table... but isn''t.')
+                    war = war+1;
                     pause
                 end
             else
                 warning('This should be the start of the New Discrimination Table... but isn''t.')
+                war = war+1;
                 pause
             end
             
@@ -179,9 +189,17 @@ diary off %stop saving to log file
             
             tvs = imported.(name).Properties.VariableNames;
             
-            % Convert Hits and Misses to 1's and 0's
+            % Detect if run was aborted and delete the incomplete table
+            if any(strcmp('Aborted',imported.(name).Response))
+                %                imported = rmfield(imported,name);
+                warning('TABLE WITH ABORTED RUN HERE. DO NOT ANALYSE.')
+                war = war+1;
+            end
+            
+            % Convert Hits and Misses to 1's and 0's, and Aborted's to 0
             imported.(name).Response(strcmp('Hit',imported.(name).Response))={'1'};
             imported.(name).Response(strcmp('Miss',imported.(name).Response))={'0'};
+            imported.(name).Response(strcmp('Aborted',imported.(name).Response))={'0'};
             imported.(name).Response = str2double(imported.(name).Response);
             
             for n = 1:length(tvs);
@@ -195,13 +213,23 @@ diary off %stop saving to log file
             end
             %         clearvars -EXCEPT imported fn pn a blockFID loopcount name1 spd varsetup setting settings indvars
         end
-    end    
+    end
 
 
 % Update and delete waitbar
 %set(get(findobj(w,'type','axes'),'title'), 'string', 'FINISHED!');
-waitbar(1,w,'FINISHED!');
-pause(0.5)
+
+wbmsg = sprintf('FINISHED with %d Warnings!',war);
+if war>0
+    waitbar(1,w,wbmsg);
+    disp(wbmsg)
+    pauseTime = 1.5;
+else
+    waitbar(1,w,'FINISHED!');
+    pauseTime = 0.5;
+end
+
+pause(pauseTime)
 delete(w)
 
 end

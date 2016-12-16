@@ -4,7 +4,9 @@
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
 % NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710_auto(data, expName, expDateSess, readID, pn)
+function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name)
+
+% NAME VARIABLE ADDED - REMOVE IF MAKING MANUAL
 
 %sprintf('%0.0f',clock) %to give names
 
@@ -13,8 +15,8 @@ function [] = analyse710_auto(data, expName, expDateSess, readID, pn)
 % Add Palamedes to path
 %addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
 
-name = input('INPUT NAME FOR PLOT\n','s');
-combi = input('Is this a single (Enter) or combi (1) file?');
+%name = input('INPUT NAME FOR PLOT\n','s');
+combi = []; %input('Is this a single (Enter) or combi (1) file?');
 
 if combi
     %TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
@@ -118,7 +120,7 @@ end
         disp(currentTable)
         cTix = ismember(fnD,currentTable);
         fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
-        ctn = input('Continue (1) or select another(0)?\n');
+        ctn = 1; %input('Continue (1) or select another(0)?\n');
         if ~isempty(ctn)
         switch ctn
             case 0 %select other
