@@ -1,32 +1,38 @@
-k = 1;
-m = 1;
-while m % Collect directories with files to use
-ampn{k} = uigetdir();
-k = k+1;
-m = input('Input 1 to get another directory...\n');
+%%NB: LOOK AT NAMES IN ANALYSE SECTION BELOW
+
+skip = false; %Put this in sections which I want to skip
+
+if skip
+    k = 1;
+    m = 1;
+    while m % Collect directories with files to use
+        ampn{k} = uigetdir();
+        k = k+1;
+        m = input('Input 1 to get another directory...\n');
+    end
+    
+    %Read tables in
+    for k = 1:length(ampn)
+        disp(ampn{k})
+        read_in_tables_removeold();
+        clearvars -EXCEPT k ampn
+    end
+    
+    %read_in_tables_removeold();
+    
+    %[fn, pn] = uigetfile(pn);
+    
+    %clearvars -EXCEPT pn fn
+    
+    %load([pn fn])
 end
-
-%Read tables in
-for k = 1:length(ampn)
-disp(ampn{k})
-read_in_tables_removeold();
-clearvars -EXCEPT k ampn
-end
-
-%read_in_tables_removeold();
-
-%[fn, pn] = uigetfile(pn);
-
-%clearvars -EXCEPT pn fn
-
-%load([pn fn])
 %% Single runs
 %Analyse and produce quick plots
 
 % Add Palamedes to path
 addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
 
-NAMES = {'WL2data'};
+NAMES = {'BPPilot','IC2data','JG2data','JR2data','KS2data','RD2data','RJdata','VBdata','WL2data','YL2data'};
 
 for k = 1:length(ampn)
 [fn, pn] = uigetfile(ampn{k});

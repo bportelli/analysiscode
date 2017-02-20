@@ -2,7 +2,7 @@
 %
 %a={}; %Paste the Names here
 
-function [contrasts, ] = extractWCS()
+%function [contrasts, ] = extractWCS()
 
 %% Get list of ExpNames
 fp = 'C:\Users\bjp4\Desktop\TEST_BPPilot.xlsx';
@@ -11,45 +11,54 @@ a = tata.ExpName;
 
 %% For contrasts
 b = regexp(a,'_c\d\d','match');
+
+%baa(ix)= b{ix}(:,:); %Trying to fix the handling of empty cells!
+
+
 b = [b{:}];
 
-c = cellfun(@(x)x(3:4),b,'Uniformoutput',0);
+c = cellfun(@(x)x(3:end),b,'Uniformoutput',0);
 c = c';
 
-contrasts=[];
+Contrasts=[];
 for k = 1:length(c)
-    contrasts(k,1) = str2double(c{k,1}); % Contrast List Complete!
+    Contrasts(k,1) = str2double(c{k,1}); % Contrast List Complete!
 end
+
+% co = table(contrasts,'VariableNames',{'Contrasts'});
+% tata2 = [tata(:,[1,2]), co, tata(:,3:end)];
 
 %% For motioncue
 
-for k = 1:length(a) %This is terrible. Use regexp
-    if sum(ismember(a{k,1},'cd')) >=2
-        b{k,1} = 'cd';
-    end
-    if sum(ismember(a{k,1},'Lateral')) >=7
-        b{k,1} = 'Lateral';
-    end
-    if sum(ismember(a{k,1},'full')) >=4
-        b{k,1} = 'full';
-    end
-    if sum(ismember(a{k,1},'iovd')) >=4
-        b{k,1} = 'iovd';
-    end
+%Lateral index
+LatIx = regexp(a,'Lateral_w');
+LatIx = ~[cellfun(@isempty,LatIx)];
+%full index
+fullIx = regexp(a,'full_w');
+fullIx = ~[cellfun(@isempty,fullIx)];
+%cd index
+cdIx = regexp(a,'cd_w');
+cdIx = ~[cellfun(@isempty,cdIx)];
+%iovd index
+iovdIx = regexp(a,'iovd_w');
+iovdIx = ~[cellfun(@isempty,iovdIx)];
+
+MotionCues = {};
+MotionCues(LatIx)= {'Lateral'};
+MotionCues(fullIx)= {'Full'};
+MotionCues(cdIx)= {'CD'};
+MotionCues(iovdIx)= {'IOVD'};
+
+%% For widths
+b1 = regexp(a,'_w\d(\.\d)?','match');
+b1 = [b1{:}];
+
+c1 = cellfun(@(x)x(3:end),b1,'Uniformoutput',0);
+c1 = c1';
+
+Widths=[];
+for k = 1:length(c1)
+    Widths(k,1) = str2double(c1{k,1}); % Contrast List Complete!
 end
 
-
-b = regexp(a,'_c\d\d','match');
-b = [b{:}];
-
-c = cellfun(@(x)x(3:4),b,'Uniformoutput',0);
-c = c';
-
-contrasts=[];
-for k = 1:length(c)
-    contrasts(k,1) = str2double(c{k,1}); % Contrast List Complete!
-end
-
-
-
-end
+%end
