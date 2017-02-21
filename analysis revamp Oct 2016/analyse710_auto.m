@@ -4,7 +4,7 @@
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
 % NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name)
+function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name,combi)
 
 % NAME VARIABLE ADDED - REMOVE IF MAKING MANUAL
 
@@ -16,7 +16,7 @@ function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name)
 %addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
 
 %name = input('INPUT NAME FOR PLOT\n','s');
-combi = []; %input('Is this a single (Enter) or combi (1) file?');
+%combi = []; %input('Is this a single (Enter) or combi (1) file?');
 
 if combi
     %TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';

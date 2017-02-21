@@ -5,6 +5,7 @@
 function [tataO] = extractWCS(tata)
 
 %% Get list of ExpNames
+%(Demo: C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\BPpilot\BPpilot.xlsx )
 %fp = 'C:\Users\bjp4\Desktop\TEST_BPPilot.xlsx';
 %tata = readtable(fp);
 A = tata.ExpName;
@@ -31,11 +32,11 @@ MotionCues(iovdIx)= {'IOVD'};
 
 %% Other IV's (comment out the unwanted ones)
 numpat = '\d(\.?\d)?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
-va.Contrasts = getNumerical('_c',numpat);
-va.Widths = getNumerical('_w',numpat);
-va.Speeds = getNumerical('_spd',numpat);
+va.Contrast = getNumerical('_c',numpat);
+va.Width = getNumerical('_w',numpat);
+va.Speed = getNumerical('_spd',numpat);
 
-varNmes = ['MotionCues'; fieldnames(va)];
+varNmes = ['MotionCue'; fieldnames(va)];
 %{'MotionCues','Contrasts','Widths','Speeds'};
 
 %% Produce the output (NB: MODIFY THE insT VARIABLE IF CHANGING VARS)

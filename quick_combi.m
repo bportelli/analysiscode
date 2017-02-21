@@ -1,7 +1,13 @@
 function [infoLi] = quick_combi()
 
+NAME = 'IC2data';%Put in PP Name here
+
 tableref(1) = input('Paste in ref number 1');
 tableref(2) = input('Paste in ref number 2');
+ tableref(3) = input('Paste in ref number 3');
+% tableref(4) = input('Paste in ref number 4');
+% tableref(5) = input('Paste in ref number 5');
+% tableref(6) = input('Paste in ref number 6');
 
 %Variable Setup
 inTaPl = {};%Info Tables placeholder
@@ -11,8 +17,8 @@ NuPoCo = [];
 OutOfNco = [];
 PF = @PAL_Weibull; 
 
-for j = 1:2
-load(['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\VBdata\Incoming\', num2str(tableref(j)), '.mat'],...
+for j = 1:length(tableref)
+load(['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\', NAME ,'\Incoming\', num2str(tableref(j)), '.mat'],...
     'T1','StimLevels','NumPos','OutOfNum')
 inTaPl{j} = T1;
    

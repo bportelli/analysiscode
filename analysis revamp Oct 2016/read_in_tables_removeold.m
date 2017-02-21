@@ -141,11 +141,13 @@ diary off %stop saving to log file
                     varsetup(a).(['table' num2str(tables)]) = line; %save the variable setup for this file
                 else
                     warning('This should be the start of the New Discrimination Table... but isn''t.')
+                    warning(['Table ',name])
                     war = war+1;
                     pause
                 end
             else
                 warning('This should be the start of the New Discrimination Table... but isn''t.')
+                warning(['Table ',name])
                 war = war+1;
                 pause
             end
