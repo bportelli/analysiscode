@@ -17,6 +17,11 @@ for k = 1:length(NAMES)
     ampn(k)= {[StudyDir '\' NAMES{k}]};
 end
 
+    for k = 1:length(ampn)
+        [fnm{k}, pnm{k}] = uigetfile(ampn{k});
+    end
+    
+
 %% Which parts of this function should be run?
 
 sect = {'ReadIn','SingleRuns','Demos','CombinedSetup','CombinedAna','AddCols'};
@@ -69,7 +74,7 @@ end
 if any(s1==4)
     for k = 1:length(ampn)
         
-        if exist(fnm,'var')
+        if exist('fnm','var')
             fn = fnm{k};pn = pnm{k}; %Just get them from before
         else
             [fn, pn] = uigetfile(ampn{k});
@@ -85,7 +90,7 @@ end
 if any(s1==5)
 for k = 1:length(ampn)
     
-    if exist(fnm,'var')
+    if exist('fnm','var')
         fn = fnm{k};pn = pnm{k}; %Just get them from before
     else
         [fn, pn] = uigetfile(ampn{k});
