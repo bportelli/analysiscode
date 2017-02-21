@@ -9,6 +9,7 @@ function [tataO] = extractWCS(tata)
 %fp = 'C:\Users\bjp4\Desktop\TEST_BPPilot.xlsx';
 %tata = readtable(fp);
 A = tata.ExpName;
+BAYESIANS = {'DL8ET - Lateral_w7_c92_spd02_fullfield_coher50';'DL8EU - Lateral_w7_c09_spd02_fullfield_coher50';'DL8EV - Lateral_w5_c92_spd02_fullfield_coher50';'DL8EW - Lateral_w5_c09_spd02_fullfield_coher50';'DL8EX - Lateral_w3_c92_spd02_fullfield_coher50';'DL8EY - Lateral_w3_c09_spd02_fullfield_coher50';'DL8EZ - Lateral_w1.5_c92_spd02_fullfield_coher50';'DL8F0 - Lateral_w1.5_c09_spd02_fullfield_coher50';'DL8F1 - full_w7_c92_spd02_fullfield_coher50';'DL8F2 - full_w7_c09_spd02_fullfield_coher50';'DL8F3 - full_w5_c92_spd02_fullfield_coher50';'DL8F4 - full_w5_c09_spd02_fullfield_coher50';'DL8F5 - full_w3_c92_spd02_fullfield_coher50';'DL8F6 - full_w3_c09_spd02_fullfield_coher50';'DL8F7 - full_w1.5_c92_spd02_fullfield_coher50';'DL8F8 - full_w1.5_c09_spd02_fullfield_coher50';'DL8FH - cd_w7_c92_spd0.3_fullfield_coher50';'DL8FI - cd_w7_c09_spd0.3_fullfield_coher50';'DL8FJ - cd_w5_c92_spd0.3_fullfield_coher50';'DL8FK - cd_w5_c09_spd0.3_fullfield_coher50';'DL8FL - cd_w3_c92_spd0.3_fullfield_coher50';'DL8FM - cd_w3_c09_spd0.3_fullfield_coher50';'DL8FN - cd_w1.5_c92_spd0.3_fullfield_coher50';'DL8FO - cd_w1.5_c09_spd0.3_fullfield_coher50';'DL8FP - iovd_w7_c92_spd02_fullfield_coher50';'DL8FQ - iovd_w7_c09_spd02_fullfield_coher50';'DL8FR - iovd_w5_c92_spd02_fullfield_coher50';'DL8FS - iovd_w5_c09_spd02_fullfield_coher50';'DL8FT - iovd_w3_c92_spd02_fullfield_coher50';'DL8FU - iovd_w3_c09_spd02_fullfield_coher50';'DL8FV - iovd_w1.5_c92_spd02_fullfield_coher50';'DL8FW - iovd_w1.5_c09_spd02_fullfield_coher50'};
 
 %% For motioncue
 %Lateral index
@@ -30,11 +31,16 @@ MotionCues(fullIx)= {'Full'};
 MotionCues(cdIx)= {'CD'};
 MotionCues(iovdIx)= {'IOVD'};
 
+%% For Bayesians
+BayIx = cellfun(@(x)(any(ismember(BAYESIANS,x))),A);
+
 %% Other IV's (comment out the unwanted ones)
 numpat = '\d(\.?\d)?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
 va.Contrast = getNumerical('_c',numpat);
 va.Width = getNumerical('_w',numpat);
 va.Speed = getNumerical('_spd',numpat);
+
+va.Bayesian = BayIx*1; %Notice this one is different!
 
 varNmes = ['MotionCue'; fieldnames(va)];
 %{'MotionCues','Contrasts','Widths','Speeds'};

@@ -8,7 +8,7 @@ StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED';
 % Get Names and Participant Directories
 d=dir(StudyDir);
 str = {d.name};
-[s,v] = listdlg('PromptString','Select a file:',...
+[s,~] = listdlg('PromptString','Select a file:',...
     'SelectionMode','multiple',...
     'ListString',str);
 NAMES = str(s);
@@ -26,7 +26,10 @@ sect = {'ReadIn','SingleRuns','Demos','CombinedSetup','CombinedAna','AddCols'};
 
 %% Read tables in
 if any(s1==1)
-    readTablesIn()
+    for k = 1:length(ampn)
+        disp(ampn{k})
+        read_in_tables_removeold();
+    end
 end
 
 %% Single runs
@@ -35,7 +38,15 @@ end
 if any(s1==2)
     % Add Palamedes to path
     addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
-    [fnm, pnm] = SingleRuns();
+    % Run analysis   
+    for k = 1:length(ampn)
+        [fnm{k}, pnm{k}] = uigetfile(ampn{k});
+        load([pnm{k} fnm{k}],'data', 'expName', 'expDateSess', 'readID', 'pn')
+        disp(ampn{k})
+        analyse710_auto(data, expName, expDateSess, readID, pnm{k},NAMES{k},0) % THIS ALSO DOES COLLECTING NOW
+        clear 'data' 'expName' 'expDateSess' 'readID' 'pn'
+    end
+    
 end
 
 
@@ -105,23 +116,7 @@ end
 
 %% Sub-functions
 
-    function readTablesIn()
-        for k = 1:length(ampn)
-            disp(ampn{k})
-            read_in_tables_removeold();
-        end
-    end
 
-
-    function [fnm, pnm] = SingleRuns()
-        for k = 1:length(ampn)
-            [fnm{k}, pnm{k}] = uigetfile(ampn{k});
-            load([pnm{k} fnm{k}],'data', 'expName', 'expDateSess', 'readID', 'pn')
-            disp(ampn{k})
-            analyse710_auto(data, expName, expDateSess, readID, pnm{k},NAMES{k},0) % THIS ALSO DOES COLLECTING NOW
-            clear 'data' 'expName' 'expDateSess' 'readID' 'pn'
-        end
-    end
 
 end
 
