@@ -42,7 +42,7 @@ varNmes = ['MotionCues'; fieldnames(va)];
 %insT = table(MotionCues',Contrasts,Widths,Speeds,'VariableNames',...
 %varNmes); %table to insert
 
-insC = [{MotionCues'} struct2cell(va)'];
+insC = [{MotionCues'} struct2cell(va)];
 insT = table(insC{:},'VariableNames',...
     varNmes); %table to insert
 
