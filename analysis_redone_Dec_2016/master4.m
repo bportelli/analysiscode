@@ -17,10 +17,6 @@ for k = 1:length(NAMES)
     ampn(k)= {[StudyDir '\' NAMES{k}]};
 end
 
-    for k = 1:length(ampn)
-        [fnm{k}, pnm{k}] = uigetfile(ampn{k});
-    end
-    
 
 %% Which parts of this function should be run?
 
@@ -40,10 +36,24 @@ end
 %% Single runs
 %Analyse and produce quick plots
 
+for k = 1:length(ampn)
+    
+    % if there is only one MAT file, use it, otherwsise prompt
+    d1=dir(ampn{k});
+    matIx = regexp({d.name},'.mat'); %where's the MAT
+    matIx = ~[cellfun(@isempty,matIx)];
+    
+    if sum(matIx)==1 %If there's only one, use it
+        pnm{k} = [ampn{k} '\']; fnm{k} = d(matIx).name;
+    else
+        [fnm{k}, pnm{k}] = uigetfile(ampn{k});
+    end
+end
+
 if any(s1==2)
     % Add Palamedes to path
     addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
-    % Run analysis   
+    % Run analysis
     for k = 1:length(ampn)
         [fnm{k}, pnm{k}] = uigetfile(ampn{k});
         load([pnm{k} fnm{k}],'data', 'expName', 'expDateSess', 'readID', 'pn')
@@ -88,20 +98,20 @@ end
 
 %% Combined Analyse
 if any(s1==5)
-for k = 1:length(ampn)
-    
-    if exist('fnm','var')
-        fn = fnm{k};pn = pnm{k}; %Just get them from before
-    else
-        [fn, pn] = uigetfile(ampn{k});
+    for k = 1:length(ampn)
+        
+        if exist('fnm','var')
+            fn = fnm{k};pn = pnm{k}; %Just get them from before
+        else
+            [fn, pn] = uigetfile(ampn{k});
+        end
+        
+        load([pn fn],'datacomb', 'expName_comb', 'expDateSess_comb', 'readID', 'pn')
+        disp(ampn{k})
+        analyse710_auto(datacomb, expName_comb, expDateSess_comb, readID, pn, NAMES{k},1)
+        clear 'datacomb' 'expName_comb' 'expDateSess_comb' 'readID' 'pn'
     end
     
-    load([pn fn],'datacomb', 'expName_comb', 'expDateSess_comb', 'readID', 'pn')
-    disp(ampn{k})
-    analyse710_auto(datacomb, expName_comb, expDateSess_comb, readID, pn, NAMES{k},1)
-    clear 'datacomb' 'expName_comb' 'expDateSess_comb' 'readID' 'pn'
-end
-
 end
 
 %collect CURRRENTLY ADAPTED TO COMBI
@@ -111,12 +121,12 @@ end
 %regex process 'reads' the experiment names and identifies the IV's
 
 if any(s1==6)
-for pp = 1:length(NAMES)
-    tata = readtable(['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\' NAMES{pp} '\Combined\collectedTable.xls']);
-    tataO = extractWCS(tata);
-    writetable(tataO,['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\' NAMES{pp} '\' NAMES{pp} '.xlsx']);
-    clear tata tataO
-end
+    for pp = 1:length(NAMES)
+        tata = readtable(['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\' NAMES{pp} '\Combined\collectedTable.xls']);
+        tataO = extractWCS(tata);
+        writetable(tataO,['C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\' NAMES{pp} '\' NAMES{pp} '.xlsx']);
+        clear tata tataO
+    end
 end
 
 %% Sub-functions
