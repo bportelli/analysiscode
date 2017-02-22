@@ -37,17 +37,17 @@ end
 %Analyse and produce quick plots
 
 for k = 1:length(ampn)
-    
     % if there is only one MAT file, use it, otherwsise prompt
     d1=dir(ampn{k});
-    matIx = regexp({d.name},'.mat'); %where's the MAT
+    matIx = regexp({d1.name},'.mat'); %where's the MAT
     matIx = ~[cellfun(@isempty,matIx)];
     
     if sum(matIx)==1 %If there's only one, use it
-        pnm{k} = [ampn{k} '\']; fnm{k} = d(matIx).name;
+        pnm{k} = [ampn{k} '\']; fnm{k} = d1(matIx).name;
     else
         [fnm{k}, pnm{k}] = uigetfile(ampn{k});
     end
+    clear matIx d1
 end
 
 if any(s1==2)
@@ -55,7 +55,7 @@ if any(s1==2)
     addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
     % Run analysis
     for k = 1:length(ampn)
-        [fnm{k}, pnm{k}] = uigetfile(ampn{k});
+        %[fnm{k}, pnm{k}] = uigetfile(ampn{k}); % Not needed bec of previous step
         load([pnm{k} fnm{k}],'data', 'expName', 'expDateSess', 'readID', 'pn')
         disp(ampn{k})
         analyse710_auto(data, expName, expDateSess, readID, pnm{k},NAMES{k},0) % THIS ALSO DOES COLLECTING NOW
