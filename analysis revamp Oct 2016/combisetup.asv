@@ -37,6 +37,13 @@ if combiMethod % if combining by identical Experiment ID...
         end
     end
     
+    for d = newpoints %make the datacomb struct
+        datacomb.(ct{d}(1:end-1)) = dce{d};
+    end
+    
+    expName_comb = expName(newpoints);
+    expDateSess_comb = expDateSess(newpoints);
+    
 else %if Combining by Identical IV's
     
     % if there is only one XLSX file, use it, otherwsise prompt
@@ -91,34 +98,32 @@ else %if Combining by Identical IV's
     end
     
     
+    
     %dce = struct2cell(data); %data in a cell
     
     dce = {}; %placeholder for data in a cell
+    dceIt = 1; %iteration of loops to index dce
     
     for relCell = 1:length(related) %for all cells in related
         nce = {}; %placeholder newcell
         for inCell = 1:length(related{relCell})
             tableName = ct{related{relCell}(inCell)};
-            nce = [nce; (data.(tableName))];
+            nce = [nce; table2cell(data.(tableName))];
         end
-        dce{related{relCell}(1)} = [nce];
+        dce{dceIt} = [nce];
+        dceIt = dceIt+inCell;
     end
     
-    newpoints = find(~cellfun(@isempty,dce));
+  
+    
+    
     
 end
-
-for d = newpoints %make the datacomb struct
-    datacomb.(ct{d}(1:end-1)) = dce{d};
-end
-
-expName_comb = expName(newpoints);
-expDateSess_comb = expDateSess(newpoints);
 
 %% Saving and Final
 
 
-save([pn readID '.mat'],'datacomb','expName_comb','expDateSess_comb','-append')
+%save([pn readID '.mat'],'datacomb','expName_comb','expDateSess_comb','-append')
 
 
 %% Sub-functions

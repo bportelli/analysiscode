@@ -4,7 +4,7 @@
 % The Temporary Save directory is TempSaveDir = 'C:\Users\bjp4\Documents\MATLAB\TEMP FILES\';
 % NB: Remember that the inputs and inputdlg's are currently automated (some replaced by disp)
 
-function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name,combi)
+function [] = analyse710_auto(data, expName, expDateSess, readID, pn, name,combi,bootstra)
 
 % NAME VARIABLE ADDED - REMOVE IF MAKING MANUAL
 
@@ -28,87 +28,101 @@ end
 Tcoll = [];
 
 k=1;
-        while k <= length(fieldnames(data)) 
-            
-%% Constants
-WHENRUN = datetime;
-mainMAT = readID;
-AnaID = sprintf('%0.0f',clock);
+AnaID = 0;
 
-PF = @PAL_Weibull;  %Alternatives: PAL_Gumbel, PAL_Weibull,
-%PAL_CumulativeNormal, PAL_HyperbolicSecant,
-%PAL_Logistic
-
-% Create TEMP SAVE MAT file and LOG
-save([TempSaveDir AnaID '.mat'], 'WHENRUN','mainMAT');
-diary([TempSaveDir AnaID 'log' '.txt']);
-
-%to append use save([TempSaveDir AnaID '.mat'], 'VARNAME', '-append');
-
-%% Get Inputs
-[currentTable, cTix] = getCurrentTable();
-
-% Ask if bootstrapping on
-[boots, ParOrNonPar]  = queryBoots(); %Currently OFF by default
-
-% Choose the thresholded variable
-thVar = getThVar(currentTable);  % Need to get the name of the current table
-
-%% The Analysis Process
-% Prep the variables
-[StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrep(currentTable,thVar);
-
-% Evaluate Psychometric function
-PsychFunOut = getPsychFun();
-
-% Save what we've got so far
-save([TempSaveDir AnaID '.mat'], 'StimLevels','NumPos','OutOfNum',...
-    'ProportionCorrectObserved','StimLevelsFineGrain','PsychFunOut', '-append');
-
-
-% Run bootstrap if requested
-if boots == 1
-    [bootsOut, GoFOut] = bootsfun(ParOrNonPar);
-    save([TempSaveDir AnaID '.mat'], 'bootsOut', 'GoFOut', '-append');
-end
-
-% Make a simple plot
-[fhand, tx] = makePlot(name);
-
-try
-    T1 = outputSaveFitDetails(fhand); %This must be before closing and saving the figure
-    if exist('T1','var') %append the table row to the MAT file and output it
-        %Table is output
-        %writetable(T1,[TempSaveDir, AnaID,'.csv'],'Delimiter','\t') %Writes the Table. Maybe better to make it a CSV or tab?
-        
-        %writetable(T1,[TempSaveDir, AnaID,'.xlsx'],'Sheet','Sheet1') %Writes the Table. Maybe better to make it a CSV or tab?
-        ENameDate = {expName{cTix},expDateSess{cTix}};
-        save([TempSaveDir AnaID '.mat'], 'T1','ENameDate', '-append');
-        Tcoll = [Tcoll; T1]; 
-    end
-catch
-    warning('There was an error with generating the figure table output.')
-    warning('Threshold-AlphaEst-SlopeEst-etc. table will not be saved (also other parts of the MAT file).')
-end
-
-saveas(fhand,[TempSaveDir AnaID '.fig'])
-
-%close(fhand)
-
-diary off
-
-k = plus(k,1); %increment k AND...
-
-while k <= length(fieldnames(data)) && ~isempty(regexp(expName{k},'demo','ONCE'))
-    %...check if this is a demo file, increment again if so (PRESERVE THE ABOVE ORDER for the short-circuit AND)
-    k = plus(k,1);
-end
+while k <= length(fieldnames(data))
     
+    %% Constants
+    WHENRUN = datetime;
+    mainMAT = readID;
+    
+    try
+    if all(AnaID == sprintf('%0.0f',clock))  %pause for a bit to make sure duplicate name isn't used for next file (this
+        pause(1)                          % script must take at least 1 second to run)
+    end
+    catch
+     %MATLAB doesn't realise that if sprintf('%0.0f',clock) and ANAID are
+     %not equal in size, then this is not cause for an error).
+    end
+    AnaID = sprintf('%0.0f',clock);
+    
+    PF = @PAL_Weibull;  %Alternatives: PAL_Gumbel, PAL_Weibull,
+    %PAL_CumulativeNormal, PAL_HyperbolicSecant,
+    %PAL_Logistic
+    
+    % Create TEMP SAVE MAT file and LOG
+    save([TempSaveDir AnaID '.mat'], 'WHENRUN','mainMAT');
+    diary([TempSaveDir AnaID 'log' '.txt']);
+    
+    %to append use save([TempSaveDir AnaID '.mat'], 'VARNAME', '-append');
+    
+    %% Get Inputs
+    [currentTable, cTix] = getCurrentTable();
+    
+    % Ask if bootstrapping on
+    %[boots, ParOrNonPar]  = queryBoots(); %Currently OFF by default
+    boots=bootstra; ParOrNonPar = 1;
+    
+    
+    % Choose the thresholded variable
+    thVar = getThVar(currentTable);  % Need to get the name of the current table
+    
+    %% The Analysis Process
+    % Prep the variables
+    [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrep(currentTable,thVar);
+    
+    % Evaluate Psychometric function
+    [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun();
+    
+    % Save what we've got so far
+    save([TempSaveDir AnaID '.mat'], 'StimLevels','NumPos','OutOfNum',...
+        'ProportionCorrectObserved','StimLevelsFineGrain','PsychFunOut', '-append');
+    
+    
+    % Run bootstrap if requested
+    if boots == 1
+        [bootsOut, GoFOut] = bootsfun(ParOrNonPar);
+        save([TempSaveDir AnaID '.mat'], 'bootsOut', 'GoFOut', '-append');
+    end
+    
+    % Make a simple plot
+    [fhand, tx] = makePlot(name);
+    
+    try
+        T1 = outputSaveFitDetails(fhand); %This must be before closing and saving the figure
+        if exist('T1','var') %append the table row to the MAT file and output it
+            %Table is output
+            %writetable(T1,[TempSaveDir, AnaID,'.csv'],'Delimiter','\t') %Writes the Table. Maybe better to make it a CSV or tab?
+            
+            %writetable(T1,[TempSaveDir, AnaID,'.xlsx'],'Sheet','Sheet1') %Writes the Table. Maybe better to make it a CSV or tab?
+            ENameDate = {expName{cTix},expDateSess{cTix}};
+            save([TempSaveDir AnaID '.mat'], 'T1','ENameDate', '-append');
+            Tcoll = [Tcoll; T1];
         end
-        
-        save([TempSaveDir 'collectedTable'],'Tcoll') %save MAT
-        writetable(Tcoll,[TempSaveDir 'collectedTable.csv'])
-        writetable(Tcoll,[TempSaveDir 'collectedTable.xls'])
+    catch
+        warning('There was an error with generating the figure table output.')
+        warning('Threshold-AlphaEst-SlopeEst-etc. table will not be saved (also other parts of the MAT file).')
+    end
+    
+    saveas(fhand,[TempSaveDir AnaID '.fig'])
+    
+    %close(fhand)
+    
+    diary off
+    
+    k = plus(k,1); %increment k AND...
+    
+    while k <= length(fieldnames(data)) && ~isempty(regexp(expName{k},'demo','ONCE'))
+        %...check if this is a demo file, increment again if so (PRESERVE THE ABOVE ORDER for the short-circuit AND)
+        k = plus(k,1);
+    end
+    
+    
+end
+
+save([TempSaveDir 'collectedTable'],'Tcoll') %save MAT
+writetable(Tcoll,[TempSaveDir 'collectedTable.csv'])
+writetable(Tcoll,[TempSaveDir 'collectedTable.xls'])
 
 %% Sub-functions
 
@@ -122,19 +136,19 @@ end
         fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
         ctn = 1; %input('Continue (1) or select another(0)?\n');
         if ~isempty(ctn)
-        switch ctn
-            case 0 %select other
-                currentTable = input('INPUT TABLE NAME\n','s');
-                cTix = ismember(fnD,currentTable);
-                fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
-                k = find(cTix);
-            case 1
-                %just carry on
-            otherwise
-                disp('INVALID INPUT')
-                [currentTable, cTix] = getCurrentTable();
-                return
-        end
+            switch ctn
+                case 0 %select other
+                    currentTable = input('INPUT TABLE NAME\n','s');
+                    cTix = ismember(fnD,currentTable);
+                    fprintf('Chosen Table: %s run on %s\n',expName{cTix},expDateSess{cTix});
+                    k = find(cTix);
+                case 1
+                    %just carry on
+                otherwise
+                    disp('INVALID INPUT')
+                    [currentTable, cTix] = getCurrentTable();
+                    return
+            end
         end
         currentTable = data.(currentTable);
     end
@@ -190,7 +204,7 @@ end
     end
 
 
-    function PsychFunOut = getPsychFun()
+    function [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun()
         %Parameter grid defining parameter space through which to perform a
         %brute-force search for values to be used as initial guesses in iterative
         %parameter search.
@@ -238,7 +252,7 @@ end
         
         if ParOrNonPar == 1
             [SD paramsSim LLSim converged] = PAL_PFML_BootstrapParametric(...
-                StimLevels, OutOfNum, paramsValues, paramsFree, B, PF, ...
+                StimLevels, OutOfNum, PsychFunOut.paramsValues, paramsFree, B, PF, ...
                 'searchOptions',options,'searchGrid', searchGrid);
         else
             [SD paramsSim LLSim converged] = PAL_PFML_BootstrapNonParametric(...
@@ -258,7 +272,7 @@ end
         disp('Determining Goodness-of-fit.....');
         
         [Dev pDev] = PAL_PFML_GoodnessOfFit(StimLevels, NumPos, OutOfNum, ...
-            paramsValues, paramsFree, B, PF,'searchOptions',options, ...
+            PsychFunOut.paramsValues, paramsFree, B, PF,'searchOptions',options, ...
             'searchGrid', searchGrid);
         
         disp('done:');
@@ -281,8 +295,8 @@ end
         fhand = figure('name','Maximum Likelihood Psychometric Function Fitting');
         
         %if combi
-            scatter(StimLevels,ProportionCorrectObserved,...
-                'ko','MarkerFaceColor',[0.5 0.5 0.5],'SizeData',OutOfNum*5);
+        scatter(StimLevels,ProportionCorrectObserved,...
+            'ko','MarkerFaceColor',[0.5 0.5 0.5],'SizeData',OutOfNum*5);
         %else
         %    plot(StimLevels,ProportionCorrectObserved,'k.','markersize',30);
         %end
@@ -324,7 +338,7 @@ end
         Threshold = tx;
         AlphaEst = PsychFunOut.paramsValues(1); %From function fit
         SlopeEst = PsychFunOut.paramsValues(2);
-
+        
         %Details appear on axes and stored in table as a row
         if boots == 1
             % Get the results from the boostrap

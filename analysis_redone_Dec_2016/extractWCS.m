@@ -35,10 +35,11 @@ MotionCues(iovdIx)= {'IOVD'};
 BayIx = cellfun(@(x)(any(ismember(BAYESIANS,x))),A);
 
 %% Other IV's (comment out the unwanted ones)
-numpat = '\d(\.?\d)?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
+numpat = '\d(\.?\d0)?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
 va.Contrast = getNumerical('_c',numpat);
 va.Width = getNumerical('_w',numpat);
 va.Speed = getNumerical('_spd',numpat);
+va.Coher = getNumerical('_coher',numpat);
 
 va.Bayesian = BayIx*1; %Notice this one is different!
 
@@ -53,7 +54,7 @@ insC = [{MotionCues'} struct2cell(va)'];
 insT = table(insC{:},'VariableNames',...
     varNmes); %table to insert
 
-tataO = [tata(:,1:3) insT tata(:,4:6)];
+tataO = [tata(:,1:3) insT tata(:,4:end)];
 
 
 %% Sub-functions
