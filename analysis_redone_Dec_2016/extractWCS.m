@@ -35,7 +35,7 @@ MotionCues(iovdIx)= {'IOVD'};
 BayIx = cellfun(@(x)(any(ismember(BAYESIANS,x))),A);
 
 %% Other IV's (comment out the unwanted ones)
-numpat = '\d(\.?\d0)?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
+numpat = '\d(\.?\d)?0?'; %Keeping it separate in the function just in case it ever changes, but for now they're all the same (hence numpat variable)
 va.Contrast = getNumerical('_c',numpat);
 va.Width = getNumerical('_w',numpat);
 va.Speed = getNumerical('_spd',numpat);
