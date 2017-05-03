@@ -1,4 +1,4 @@
-%% Master Analysis Function for Study 4
+%% Master Analysis Function (initially written for Study 4)
 % NB: Analysis of Demos is currently commented out
 
 function [NAMES] = master4()
