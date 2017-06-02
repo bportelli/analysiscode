@@ -177,18 +177,31 @@ writetable(Tcoll,[TempSaveDir 'collectedTable.xls'])
         fi = fieldnames(currenttable);
         disp(fi)
         thVar = 'Stimulusdur';
+        
+        [thVar] = tryAnotherVar(thVar,1); % if Stimulusdur isn't on the list, then try another... (for now only suggests Stimuluscoher)
+        
         fprintf('%s is the thresholded variable. Enter to confirm, or Type another one.',thVar)
         thQ = [];%input('','s');
         if ~isempty(thQ)
             thVar = thQ;
         end
         
-        if ~any(ismember(fi,thVar)) %if it's not on the list, start again
+        if ~any(ismember(fi,thVar)) %if it's not on the list, then start again
             disp('INVALID THRESHOLDED VARIABLE')
             %error('') % PUT this here to deal with the fact that it doesn't take the corrected response. Fix this.
             pause
             thVar = getThVar(currenttable);
         end
+        
+        function [thVar] = tryAnotherVar(thVar,m)
+            possibilities = {'Stimuluscoher','Stimulusdisparity'};
+            if ~any(ismember(fi,thVar)) %if it's not on the list, then try...
+                thVar = possibilities{m};
+                [thVar] = tryAnotherVar(thVar,m+1);
+                return
+            end
+        end
+        
     end
 
 

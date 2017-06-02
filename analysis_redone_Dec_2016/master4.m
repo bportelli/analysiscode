@@ -4,14 +4,19 @@
 function [NAMES] = master4()
 %% Constants And Variable Setup
 %StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED';
-StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 5 Analysis\COMPLETED';
+% StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 5 Analysis\COMPLETED';
+StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Participants';
+% StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Creating new function test materials';
 
 % Section Names and Order:
-% {'ReadIn','SingleRuns','Demos','AddColstoSingle','CombinedSetup','CombinedAna','AddCols'};
-
+SECT = {'RivalryRead', 'ReadIn','SingleRuns','Demos','AddColstoSingle','CombinedSetup','CombinedAna','AddCols'};
 
 % Get Names and Participant Directories
 NAMES = getNames();
+
+if isempty(NAMES) % End function elegantly if cancelled here
+   return 
+end
 
 for k = 1:length(NAMES)
     ampn(k)= {[StudyDir '\' NAMES{k}]};
@@ -19,23 +24,38 @@ end
 
 
 %% Which parts of this function should be run?
-s1 = querySections();
+s1 = querySections(SECT);
+if isempty(s1) % End function elegantly if cancelled here
+   return 
+end
+
+SectionsRunning = SECT(s1);
 
 %% Set up Sections that Need it
 
 % If analysis is running, will this be with Parametric bootstrap?
 % if any([s1==2,s1==6])
-if any([s1==6])
+if sum(ismember(SectionsRunning,'CombinedAna')) == 1
     bootstra = masterQueryBoots();
 end
 
 % If combining files.... combine by experiment code, or by IV's?
-if any(s1==5)
+if sum(ismember(SectionsRunning,'CombinedSetup')) == 1
     combiMethod = masterQueryCombi(); %Method 1 is by Expt ID, 0 is by Independent Variables
 end
 
-%% Read tables in
-if any(s1==1)
+
+%% Read Rivalry Tables In
+if sum(ismember(SectionsRunning,'RivalryRead')) == 1
+    for k = 1:length(ampn)
+        disp('PLEASE SELECT THE DATAFILE(S) CONTAINING RIVALRY DATA')
+        disp(ampn{k})
+        rivalryRead();
+    end
+end
+
+%% Read tables in (not rivalry)
+if sum(ismember(SectionsRunning,'ReadIn')) == 1
     for k = 1:length(ampn)
         disp(ampn{k})
         read_in_tables_removeold();
@@ -48,7 +68,7 @@ end
 % If there is only one MAT file use it, otherwise prompt
 [fnm, pnm] = getMATaddress();
 
-if any(s1==2)
+if sum(ismember(SectionsRunning,'SingleRuns')) == 1
     % Add Palamedes to path
     addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
     % Run analysis
@@ -67,7 +87,7 @@ end
 %Produce plots for the demo file results
 % CAUTION: remove the "clear" bit from here before using!!
 
-% if any(s1==3)
+% if sum(ismember(SectionsRunning,'Demos')) == 1
 % whoHasDemos = [12,14,15]; %First, find out who has demos (numbered according to position in ampn)
 % for k = whoHasDemos;
 %     disp(ampn{k})
@@ -79,7 +99,7 @@ end
 %% Adding Columns to Single - Width, Contrast, Speed
 %regex process 'reads' the experiment names and identifies the IV's
 
-if any(s1==4)
+if sum(ismember(SectionsRunning,'AddColstoSingle')) == 1
     for pp = 1:length(NAMES)
         tata = readtable([StudyDir '\' NAMES{pp} '\Incoming\collectedTable.xls']);
         tataO = extractWCS(tata);
@@ -92,7 +112,7 @@ end
 %% Combined SETUP
 %Set up the combined data files
 
-if any(s1==5)
+if sum(ismember(SectionsRunning,'CombinedSetup')) == 1
     for k = 1:length(ampn)
         if exist('fnm','var')
             fn = fnm{k};pn = pnm{k}; %Just get them from before
@@ -106,7 +126,7 @@ if any(s1==5)
 end
 
 %% Combined Analyse
-if any(s1==6)
+if sum(ismember(SectionsRunning,'CombinedAna')) == 1
     for k = 1:length(ampn)
         
         if exist('fnm','var')
@@ -129,7 +149,7 @@ end
 %% Adding Columns - Width, Contrast, Speed
 %regex process 'reads' the experiment names and identifies the IV's
 
-if any(s1==7)
+if sum(ismember(SectionsRunning,'AddCols')) == 1
     for pp = 1:length(NAMES)
         tata = readtable([StudyDir '\' NAMES{pp} '\Combined\collectedTable.xls']);
         tataO = extractWCS(tata);
@@ -149,11 +169,10 @@ end
         NAMES = str(s);
     end
 
-    function s1 = querySections()
-        sect = {'ReadIn','SingleRuns','Demos','AddColstoSingle','CombinedSetup','CombinedAna','AddCols'};
+    function s1 = querySections(s)
         [s1,~] = listdlg('PromptString','Which sections to run:',...
             'SelectionMode','multiple',...
-            'ListString',sect);
+            'ListString',s);
     end
 
     function bootstra = masterQueryBoots()

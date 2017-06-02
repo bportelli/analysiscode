@@ -4,6 +4,10 @@
 
 function [tataO] = extractWCS(tata)
 
+%% Hacky prevention to catch irregular variables going into table
+a=load('C:\Users\bjp4\Documents\MATLAB\Git\analysiscode\analysis_redone_Dec_2016\extractwcs_breakpoints.mat');
+dbstop(a.s)
+
 %% Get list of ExpNames
 %(Demo: C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\BPpilot\BPpilot.xlsx )
 %fp = 'C:\Users\bjp4\Desktop\TEST_BPPilot.xlsx';
@@ -24,12 +28,16 @@ cdIx = ~[cellfun(@isempty,cdIx)];
 %iovd index
 iovdIx = regexp(A,'iovd_w');
 iovdIx = ~[cellfun(@isempty,iovdIx)];
+%disparity index
+dispIx = regexp(A,'disparity_w');
+dispIx = ~[cellfun(@isempty,dispIx)];
 
 MotionCues = {};
 MotionCues(LatIx)= {'Lateral'};
 MotionCues(fullIx)= {'Full'};
 MotionCues(cdIx)= {'CD'};
 MotionCues(iovdIx)= {'IOVD'};
+MotionCues(dispIx)= {'StaticDisp'};
 
 %% For Bayesians
 BayIx = cellfun(@(x)(any(ismember(BAYESIANS,x))),A);
@@ -51,6 +59,14 @@ varNmes = ['MotionCue'; fieldnames(va)];
 %varNmes); %table to insert
 
 insC = [{MotionCues'} struct2cell(va)'];
+
+% error-prevention - remove empty variables
+if any(cellfun('isempty',insC))
+    empties = find(cellfun('isempty',insC));
+    insC(empties) = [];
+    varNmes(empties) = [];
+end
+
 insT = table(insC{:},'VariableNames',...
     varNmes); %table to insert
 
