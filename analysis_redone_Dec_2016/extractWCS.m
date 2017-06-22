@@ -5,8 +5,8 @@
 function [tataO] = extractWCS(tata)
 
 %% Hacky prevention to catch irregular variables going into table
-a=load('C:\Users\bjp4\Documents\MATLAB\Git\analysiscode\analysis_redone_Dec_2016\extractwcs_breakpoints.mat');
-dbstop(a.s)
+% a=load('C:\Users\bjp4\Documents\MATLAB\Git\analysiscode\analysis_redone_Dec_2016\extractwcs_breakpoints.mat');
+% dbstop(a.s)
 
 %% Get list of ExpNames
 %(Demo: C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\COMPLETED\BPpilot\BPpilot.xlsx )
@@ -65,6 +65,14 @@ if any(cellfun('isempty',insC))
     empties = find(cellfun('isempty',insC));
     insC(empties) = [];
     varNmes(empties) = [];
+end
+
+% temporary error correction for the irregular length of cell 3
+for col = 1:length(insC)
+while length(insC{1}) > length(insC{col})
+    warning(sprintf('Zeroes inserted to fill in missing values in table col %d',col+3))
+    insC{col}(end+1) = 0;
+end
 end
 
 insT = table(insC{:},'VariableNames',...
