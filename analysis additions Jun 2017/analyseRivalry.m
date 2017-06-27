@@ -1,4 +1,4 @@
-function [] = analyseRivalry(varsetup,data,expName,expDateSess, readID)
+function [avg, tot, reversals] = analyseRivalry(varsetup,data,expName,expDateSess, readID)
 %% Analyse Rivalry files
 
 %% Make a wrapper function
@@ -24,6 +24,7 @@ genericNames = {'Input','Time'};
 rivTableAll = [];
 ShiftKeys = {'Left Shift', 'Right Shift'};
 getVal = @(x,y)(str2double(cell2mat(regexp(varsetup.(x{y}),'\d{1,3}','match'))));
+eyes = {'Right','None','Left'};
 
 %% Comprehension Check
 %If they fail it just put a note on the plot and in the log file and carry
@@ -60,7 +61,7 @@ end
 
 %% Loop through the 'Trials'
 for trial = 1:2
-LR = getVal(sameTablesInfo,trial); %extract 1-3 digits to get the LR setup (see note above)
+LR = getVal(rivTablesInfo,trial); %extract 1-3 digits to get the LR setup (see note above)
 tableNow = data.(rivTables{trial});
 
 %Make the variable names generic so that the table concatenation will work
@@ -85,11 +86,12 @@ clear tableNow holder %make this into a function so these instructions can be de
 end
 
 XandY = cell2mat((table2cell(rivTableAll)));
+XandY(:,3) = [diff(XandY(:,2)); 60-XandY(end,2)];
 timePts = XandY(:,2);
 buttons = XandY(:,1);
 
 % Make fine grain data and gradual step on y axis
-grain = 500;
+grain = 100;
 for fgT = 1:length(timePts) 
     timePtsFine((grain*(fgT-1))+1) = timePts(fgT);
     if fgT~=length(timePts)
@@ -102,12 +104,17 @@ for fgB = 1:length(buttons)
     buttonsFine((grain*(fgB-1))+1:(grain*(fgB-1))+grain) = deal(buttons(fgB));
     end
 end
-for stB = 1:length(buttonsFine) %stepping buttonsFine (no jumping from -1 to 1 or vice versa)
-    if abs(buttonsFine(stB)-buttonsFine(stB+1))>1 %if the jump is greater than 1
-        buttonsFine = [buttonsFine(1:stB) 0 buttonsFine(stB:end)]; %insert a 0 step...
-        timePtsFine = [timePtsFine(1:stB) timePtsFine(stB) timePtsFine(stB:end)]; %...at the same time point as the previous
+% bFo = buttonsFine; %buttonsFine "old"
+% tPFo = timePtsFine; %"old" 
+stB = 1;
+while stB < length(buttonsFine) %stepping buttonsFine (no jumping from -1 to 1 or vice versa) 
+    if abs(buttonsFine(stB)-buttonsFine(stB+1))>1 %if the jump is greater than 1 
+        buttonsFine = [buttonsFine(1:stB) 0 buttonsFine(stB+1:end)]; %insert a 0 step... 
+        timePtsFine = [timePtsFine(1:stB) timePtsFine(stB) timePtsFine(stB+1:end)]; %...at the same time point as the previous 
+        stB = stB+1; % skip 1 because it's the inserted one
     end
-end
+    stB = stB+1;
+end 
 
 
 % Scatter Plot Colours - Doesn't actually seem to be having any effect
@@ -139,11 +146,53 @@ plotTitle = [];
 end
 
 %% Output Values
-mn = @(x) (mean(XandY(XandY(:,1)==x,2)));
-avg(1) = mn(1); %mean time looking through right eye - NO IT ISN'T, BUT IT'S THE FIRST STEP TO DOING IT
-avg(2) = mn(0); 
-avg(3) = mn(-1);
+%Mean
+mn = @(x) (mean(XandY(XandY(:,1)==x,3)));
+avg(1) = mn(1); %mean time looking through right eye 
+avg(2) = mn(0); % none
+avg(3) = mn(-1); % mean time looking through left eye
 
+%Total
+to = @(x) (sum(XandY(XandY(:,1)==x,3)));
+tot(1) = to(1); %sum time looking through right eye 
+tot(2) = to(0); % none
+tot(3) = to(-1); % sum time looking through left eye
+
+%Reversals
+reversals = 0;
+rr = 0;
+while rr<length(XandY)
+    rr=rr+1;
+    if XandY(rr,1) == 0
+        continue
+    end
+    val1 = XandY(rr);
+    rr2 = rr+1;
+    val2 = XandY(rr2);
+    
+    while and(val2==0,rr2<length(XandY))
+        rr2=rr2+1;
+        val2 = XandY(rr+1);
+    end
+        
+    if val1 ~= val2
+        reversals = reversals+1;
+    else
+        continue
+    end
+end
+
+disp('****************');
+for m = 1:length(avg)
+    fprintf('Average (s) %s: %0.2f \n',eyes{m},avg(m));
+end
+disp('****************');
+for m2 = 1:length(tot)
+    fprintf('Total (s) %s: %0.2f \n',eyes{m2},tot(m2));
+end
+disp('****************');
+fprintf('Number of Reversals: %d \n',reversals);
+disp('****************');
 
 %%
 figure(1)
@@ -152,15 +201,21 @@ hold on
 scatter(timePts(buttons==0),buttons(buttons==0),30,colours(buttons==0),'filled')
 sh = stairs(timePts,buttons,'Color','k','LineWidth',1);
 % patch(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'r');
-area(timePtsFine,buttonsFine,'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
+% area(timePtsFine,buttonsFine,'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
 
-% area(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
+area(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
+area(timePtsFine(buttonsFine<=0),buttonsFine(buttonsFine<=0),'EdgeColor','none','FaceColor',[0.8 0.98 0.8])
+
+sch = scatter(avg,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],'x');
+
 
 % [bottomLine, topLine] = plotColours(buttonsFine);
 % plot(timePtsFine,bottomLine,'r',timePtsFine,topLine,'g');
 
 title(plotTitle,'interpreter','none')
 text(30,-1.5,compCheck,'color','r') % Prints in red if they've failed the comprehension check
+
+legend(sch,{'Average'})
 
 ylabel('Right Eye (1), Left Eye (-1), or No Button (0)')
 xlabel('Time in sec')

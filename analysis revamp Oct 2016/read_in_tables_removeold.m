@@ -7,9 +7,19 @@ function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_table
 
 tic
 
-[fn pn] = uigetfile('.txt','MultiSelect','On');
+[fn, pn] = uigetfile('.txt','MultiSelect','On');
 
-copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
+% Create empty folder structure
+%copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
+folN = {'Fitting','Outputs','Plots','Combined','Incoming'};
+for ff = 1:length(folN)
+mkdir(pn,folN{ff})
+if ff == 4 % If Combined
+    for ff2 = 1:3
+        mkdir([pn 'Combined\'],folN{ff2})
+    end
+end
+end
 
 %ppcode = input('Input ppcode\n','s'); %ADD THIS TO SAVE LIST IF USING IT
 
