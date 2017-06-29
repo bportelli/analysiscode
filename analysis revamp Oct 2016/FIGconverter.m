@@ -4,6 +4,7 @@
 
 k = 1;
 m = 1;
+pn = {};
 while m % Collect directories with files to convert
 pn{k} = uigetdir();
 k = k+1;

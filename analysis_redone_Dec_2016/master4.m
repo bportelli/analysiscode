@@ -12,7 +12,7 @@ StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Participants';
 SECT = {'RivalryRead', 'ReadIn','SingleRuns','Demos','AddColstoSingle','CombinedSetup','CombinedAna','AddCols'};
 
 % Get Names and Participant Directories
-NAMES = getNames();
+NAMES = getNames(StudyDir);
 
 if isempty(NAMES) % End function elegantly if cancelled here
    return 
@@ -66,7 +66,7 @@ end
 %Analyse and produce quick plots
 
 % If there is only one MAT file use it, otherwise prompt
-[fnm, pnm] = getMATaddress();
+[fnm, pnm] = getAddress(ampn,'.mat');
 
 if sum(ismember(SectionsRunning,'SingleRuns')) == 1
     % Add Palamedes to path
@@ -160,15 +160,16 @@ end
 
 %% Sub-functions
 
-    function NAMES = getNames()
-        d=dir(StudyDir);
-        str = {d.name};
-        str = str(cellfun('isempty',regexp(str,'\.'))); % removes anything that isn't a folder (things that aren't folders have a dot)
-        [s,~] = listdlg('PromptString','Select a participant:',...
-            'SelectionMode','multiple',...
-            'ListString',str);
-        NAMES = str(s);
-    end
+%RETIRED FUNCTION, NOW USING THE ONE IN THE FOLDER
+%     function NAMES = getNames(StudyDir) 
+%         d=dir(StudyDir);
+%         str = {d.name};
+%         str = str(cellfun('isempty',regexp(str,'\.'))); % removes anything that isn't a folder (things that aren't folders have a dot)
+%         [s,~] = listdlg('PromptString','Select a participant:',...
+%             'SelectionMode','multiple',...
+%             'ListString',str);
+%         NAMES = str(s);
+%     end
 
     function s1 = querySections(s)
         [s1,~] = listdlg('PromptString','Which sections to run:',...
@@ -204,21 +205,21 @@ end
         end
     end
 
-
-    function [fnm, pnm] = getMATaddress()
-        for k1 = 1:length(ampn)
-            % if there is only one MAT file, use it, otherwsise prompt
-            d1=dir(ampn{k1});
-            matIx = regexp({d1.name},'.mat'); %where's the MAT
-            matIx = ~[cellfun(@isempty,matIx)];
-            
-            if sum(matIx)==1 %If there's only one, use it
-                pnm{k1} = [ampn{k1} '\']; fnm{k1} = d1(matIx).name;
-            else
-                [fnm{k1}, pnm{k1}] = uigetfile(ampn{k1});
-            end
-        end
-    end
+% RETIRED FUNCTION, NOW USING THE ONE IN FOLDER: [fnm, pnm] = getAddress(ampn,fSuff)
+%     function [fnm, pnm] = getMATaddress()
+%         for k1 = 1:length(ampn)
+%             % if there is only one MAT file, use it, otherwsise prompt
+%             d1=dir(ampn{k1});
+%             matIx = regexp({d1.name},'.mat'); %where's the MAT
+%             matIx = ~[cellfun(@isempty,matIx)];
+%             
+%             if sum(matIx)==1 %If there's only one, use it
+%                 pnm{k1} = [ampn{k1} '\']; fnm{k1} = d1(matIx).name;
+%             else
+%                 [fnm{k1}, pnm{k1}] = uigetfile(ampn{k1});
+%             end
+%         end
+%     end
 
 end
 

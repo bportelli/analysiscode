@@ -1,12 +1,10 @@
-function [avg, tot, reversals] = analyseRivalry(varsetup,data,expName,expDateSess, readID)
+function [avg, tot, reversals, han] = analyseRivalry(varsetup,data,expName,expDateSess, readID)
 %% Analyse Rivalry files
 
 %% Make a wrapper function
-%Include a diary for log file, and saving of plotbj
+%Include a diary for log file, and saving of plot
 
-
-% Also needs adding: Statistics. Extract from Psyk outputs and/or calculate
-% my own?
+% Change lines 44 and 76 for people with opposite instructions
 
 %% Note on LR: winopen('C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\LRsetup.bmp')
 % When LR is 0, 135 deg is in Left eye, and 45 deg is in right eye
@@ -24,7 +22,8 @@ genericNames = {'Input','Time'};
 rivTableAll = [];
 ShiftKeys = {'Left Shift', 'Right Shift'};
 getVal = @(x,y)(str2double(cell2mat(regexp(varsetup.(x{y}),'\d{1,3}','match'))));
-eyes = {'Right','None','Left'};
+EYES = {'Right Eye','No Button','Left Eye'};
+EYENUMS = [1 0 -1];
 
 %% Comprehension Check
 %If they fail it just put a note on the plot and in the log file and carry
@@ -42,13 +41,19 @@ switch ori
         warning('Orientation not correctly obtained. ERROR IMMINENT.')
 end
 
+%btns = flip(btns); % FOR PP WITH OPPOSITE INSTRUCTIONS
 for sT = 1:2
     taNow = data.(sameTables{sT}); %table from the 'same' condition (Comprehension Check)
     [taNow] = makeVNamesGeneric(taNow); % make variable names just Input and Time
+    taNow.TimeSpent = [diff(taNow.Time); CCCheckDUR-taNow.Time(end)];
     
-    ix = ~cellfun('isempty',regexp(taNow.Input,btns{sT})); %Find out on which row the correct button for this check is
+    ix = ~cellfun('isempty',regexp(taNow.Input,btns{sT})); %Find out on which row(s) the correct button for this check is
+    mstT = ismember(taNow.TimeSpent,max(taNow.TimeSpent)); %Find out on which rows most time was spent
     
-    if max(taNow.Time) == taNow.Time(ix) % if the time associated with the correct answer is the maximum time...
+    if any(mstT & ix) % if the time associated with the correct answer is the maximum time spent pressing a button...
+        if sT == 2
+            break %If passed again, no need to do this twice
+        end
         compCheck = '';
         disp('Comprehension check passed')
     else
@@ -68,6 +73,7 @@ tableNow = data.(rivTables{trial});
 tableNow = makeVNamesGeneric(tableNow);
 
 %Change the Inputs to Eye References (1 is looking through right eye, -1 through left eye)
+%LR = ~LR; %FOR USE WITH OPPOSITE INSTRUCTIONS
 if LR %IF LR IS 1
     % Here, 'Left Shift' is looking through right eye
     tableNow = changeToEye(tableNow,[0,-1,1]); %second input in: 'None','Right Shift','Left Shift'
@@ -81,12 +87,17 @@ if trial==2
     tableNow.Time = tableNow.Time + TRIALDUR;
 end
 
+% Add last line to tableNow to show final button press (Hacky fix)
+lastRow = tableNow(end,:);
+lastRow.Time = (TRIALDUR*(trial))-0.0001;
+tableNow(end+1,:) = lastRow;
+
 rivTableAll = [rivTableAll; tableNow]; 
-clear tableNow holder %make this into a function so these instructions can be deleted
+clear tableNow %make this into a function so these instructions can be deleted?
 end
 
 XandY = cell2mat((table2cell(rivTableAll)));
-XandY(:,3) = [diff(XandY(:,2)); 60-XandY(end,2)];
+XandY(:,3) = [diff(XandY(:,2)); (TRIALDUR*2)-XandY(end,2)];
 timePts = XandY(:,2);
 buttons = XandY(:,1);
 
@@ -116,52 +127,16 @@ while stB < length(buttonsFine) %stepping buttonsFine (no jumping from -1 to 1 o
     stB = stB+1;
 end 
 
-
-% Scatter Plot Colours - Doesn't actually seem to be having any effect
-colours = [];
-fRow = @(x) find(buttons == x);
-colours(fRow(1),1) = deal(1); % Red
-colours(fRow(1),2) = deal(0); % Green
-colours(fRow(1),3) = deal(0); % Blue
-
-colours(fRow(0),1) = deal(0);
-colours(fRow(0),2) = deal(1);
-colours(fRow(0),3) = deal(0);
-
-
-colours(fRow(-1),1) = deal(0);
-colours(fRow(-1),1) = deal(0);
-colours(fRow(-1),1) = deal(1);
-
-
-% buttons == 1;
-% colours(find(buttons == 1),1:3) = [1 0 0];
-% colours(find(buttons == 0),1:3) = [0 1 0];
-% colours(find(buttons == -1),1:3) = [0 0 1];
-
-if nargin>2
-plotTitle = [expName{1},expDateSess{1},' ',readID];
-else
-plotTitle = [];
-end
-
 %% Output Values
-%Mean
+%Mean and Total
 mn = @(x) (mean(XandY(XandY(:,1)==x,3)));
-avg(1) = mn(1); %mean time looking through right eye 
-avg(2) = mn(0); % none
-avg(3) = mn(-1); % mean time looking through left eye
-
-%Total
 to = @(x) (sum(XandY(XandY(:,1)==x,3)));
-tot(1) = to(1); %sum time looking through right eye 
-tot(2) = to(0); % none
-tot(3) = to(-1); % sum time looking through left eye
+[avg, tot] = genOutputs(mn,to);
 
 %Reversals
 reversals = 0;
-rr = 0;
-while rr<length(XandY)
+rr = 0; rr2 = 0; %counters
+while rr2<length(XandY) %rr2 is always ahead of rr
     rr=rr+1;
     if XandY(rr,1) == 0
         continue
@@ -172,11 +147,12 @@ while rr<length(XandY)
     
     while and(val2==0,rr2<length(XandY))
         rr2=rr2+1;
-        val2 = XandY(rr+1);
+        val2 = XandY(rr2);
     end
         
     if val1 ~= val2
         reversals = reversals+1;
+        rr=rr2-1; %skip to where rr2 was (the minus 1 is to account for the incrementing at the top)
     else
         continue
     end
@@ -184,41 +160,66 @@ end
 
 disp('****************');
 for m = 1:length(avg)
-    fprintf('Average (s) %s: %0.2f \n',eyes{m},avg(m));
+    fprintf('Average (s) %s: %0.2f \n',EYES{m},avg(m));
 end
 disp('****************');
 for m2 = 1:length(tot)
-    fprintf('Total (s) %s: %0.2f \n',eyes{m2},tot(m2));
+    fprintf('Total (s) %s: %0.2f \n',EYES{m2},tot(m2));
 end
 disp('****************');
 fprintf('Number of Reversals: %d \n',reversals);
 disp('****************');
 
-%%
-figure(1)
+%% Figure Plotting
+% Setup for the Plots
+%Symbols
+AS = 'x'; %Average Symbol
+TS = 'o'; %Total Symbol
+
+% Scatter Plot Colour Settings
+colours = getSomeColours();
+
+% Make the title out of the 3rd+ inputs (if they exist)
+if nargin>2
+plotTitle = [expName{1},expDateSess{1},' ',readID];
+else
+plotTitle = [];
+end
+
+% Begin Plotting
+han.f = figure(1);
 axis([0 TRIALDUR*2 -2 2]) %X axis is as long as 2 rivalry trials
 hold on
-scatter(timePts(buttons==0),buttons(buttons==0),30,colours(buttons==0),'filled')
-sh = stairs(timePts,buttons,'Color','k','LineWidth',1);
-% patch(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'r');
-% area(timePtsFine,buttonsFine,'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
 
-area(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'EdgeColor','none','FaceColor',[0.8 0.88 0.97])
-area(timePtsFine(buttonsFine<=0),buttonsFine(buttonsFine<=0),'EdgeColor','none','FaceColor',[0.8 0.98 0.8])
-
-sch = scatter(avg,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],'x');
-
-
+%Shading for the plot
+han.ar(1) = area(timePtsFine(buttonsFine>=0),buttonsFine(buttonsFine>=0),'EdgeColor','none','FaceColor',[0.8 0.88 0.97]);
+han.ar(2) = area(timePtsFine(buttonsFine<=0),buttonsFine(buttonsFine<=0),'EdgeColor','none','FaceColor',[0.8 0.98 0.8]);
 % [bottomLine, topLine] = plotColours(buttonsFine);
 % plot(timePtsFine,bottomLine,'r',timePtsFine,topLine,'g');
 
+% The data points and stairs
+han.sc = scatter(timePts(buttons==0),buttons(buttons==0),30,colours(buttons==0,:),'filled');
+han.avsc = scatter(avg,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],AS);
+han.tosc = scatter(tot,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],TS);
+
+%% Plot Annotations and Title
 title(plotTitle,'interpreter','none')
 text(30,-1.5,compCheck,'color','r') % Prints in red if they've failed the comprehension check
+text(30,1.5,sprintf('Reversals: %d',reversals),'color','k') % Shows the number of reversals
 
-legend(sch,{'Average'})
+% Legend Stuff
+han.legAX = scatter(0,0,1,['k' AS],'Visible','off');
+han.legTX = scatter(0,0,1,['k' TS],'Visible','off');
+han.Leg = legend([han.legAX han.legTX],{'Averages', 'Totals'});
+
+%Average and Total
+for avN = 1:length(avg)
+text(avg(avN)+2,2-(avN)+0.1,sprintf('Average: %.2f',avg(avN)))
+text(avg(avN)+2,2-(avN)-0.1,sprintf('Total: %.2f',tot(avN)))
+end
 
 ylabel('Right Eye (1), Left Eye (-1), or No Button (0)')
-xlabel('Time in sec')
+xlabel('Time in seconds')
 
 %% Sub-functions
     function [ta] = changeToEye(ta,in) %in: 'None','Right Shift','Left Shift'
@@ -249,6 +250,27 @@ xlabel('Time in sec')
     function [ta] = makeVNamesGeneric(ta)
         refs = cellfun('isempty',regexp(ta.Properties.VariableNames,'Input'))+1;
         ta.Properties.VariableNames = genericNames(refs);
+    end
+
+    function colours = getSomeColours()
+        colours = nan(length(buttons),3);
+        cols = eye(3);
+        fRow = @(x) find(buttons == x);
+        for ey = 1:3
+            eyN = EYENUMS(ey);
+            for cc = 1:3
+                colours(fRow(eyN),cc) = deal(cols(ey,cc));
+            end
+        end
+    end
+
+    function [avg, tot] = genOutputs(fAv,fTo)
+        avg = nan(1,3); tot = nan(1,3);
+        for eyn = 1:3
+            eyN = EYENUMS(eyn);
+            avg(eyn) = fAv(eyN);
+            tot(eyn) = fTo(eyN);
+        end
     end
 
 end
@@ -303,5 +325,3 @@ end
 % %      xd=get(sh,'xdata');
 % %      yd=get(sh,'ydata');
 % %      patch(xd,yd,'r');
-
-
