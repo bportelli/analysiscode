@@ -39,6 +39,7 @@
 function [] = splitRespWrapper(a)
 
 if nargin <1
+    % [a] = gatherFile('datacomb','Exp000BJ','D:\Work\MATLAB\ParticipantsNOW'); % For use on LAPTOP
     [a] = gatherFile('datacomb','Exp000BJ',[]); %this looks in the default Particpants folder
     %[a] = gatherFile('datacomb','Exp000BJ','C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Storage and Archive\Participants_v3 all with slow Full cue');
 end

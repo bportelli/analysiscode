@@ -1,11 +1,11 @@
-function [ imported, pn, readID, varsetup, expName, expDateSess ] = rivalryRead( )
+function [ imported, pn, readID, varsetup, expName, expDateSess ] = rivalryRead(fn, pn)
 %Read the Psykinematix Output for rivalry
 
 tic
 
-[fn, pn] = uigetfile('.txt','MultiSelect','On');
+% [fn, pn] = uigetfile('.txt','MultiSelect','On');
 
-copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
+%copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
 
 %ppcode = input('Input ppcode\n','s'); %ADD THIS TO SAVE LIST IF USING IT
 
@@ -19,7 +19,7 @@ varsetup = {}; %will become a struct
 
 diary([pn 'readfilelog.txt']) %Make log file
 
-[fn] = gfcheck(fn,'cell'); %'cell' specifies that fn should be a cell array
+% [fn] = gfcheck(fn,'cell'); %'cell' specifies that fn should be a cell array
 
 % Waitbar setup
 a=0;

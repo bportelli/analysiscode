@@ -1,4 +1,4 @@
-function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold()
+function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_tables_removeold(fn, pn)
 %% Function to read data files and extract New Discrimination tables
 % Tables are not necessarily from same experiment or participant.
 % This just creates a mat file that holds a bunch of tables, and a txt file to tell you what's in there. That's it.
@@ -7,19 +7,19 @@ function [imported, pn, readID, varsetup, expName, expDateSess ] = read_in_table
 
 tic
 
-[fn, pn] = uigetfile('.txt','MultiSelect','On');
-
-% Create empty folder structure
-%copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
-folN = {'Fitting','Outputs','Plots','Combined','Incoming'};
-for ff = 1:length(folN)
-mkdir(pn,folN{ff})
-if ff == 4 % If Combined
-    for ff2 = 1:3
-        mkdir([pn 'Combined\'],folN{ff2})
-    end
-end
-end
+% [fn, pn] = uigetfile('.txt','MultiSelect','On');
+% 
+% % Create empty folder structure
+% %copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
+% folN = {'Fitting','Outputs','Plots','Combined','Incoming'};
+% for ff = 1:length(folN)
+% mkdir(pn,folN{ff})
+% if ff == 4 % If Combined
+%     for ff2 = 1:3
+%         mkdir([pn 'Combined\'],folN{ff2})
+%     end
+% end
+% end
 
 %ppcode = input('Input ppcode\n','s'); %ADD THIS TO SAVE LIST IF USING IT
 

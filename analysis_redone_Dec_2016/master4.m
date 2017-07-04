@@ -8,6 +8,10 @@ function [NAMES] = master4()
 StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Participants';
 % StudyDir = 'C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\Creating new function test materials';
 
+if ~exist('StudyDir','var')
+StudyDir = uigetdir('.','Choose the dir that holds participant folders for this study');
+end
+
 % Section Names and Order:
 SECT = {'RivalryRead', 'ReadIn','SingleRuns','Demos','AddColstoSingle','CombinedSetup','CombinedAna','AddCols'};
 
@@ -46,20 +50,37 @@ end
 
 
 %% Read Rivalry Tables In
+rivrun = 0;
 if sum(ismember(SectionsRunning,'RivalryRead')) == 1
+    rivrun = 1;
     for k = 1:length(ampn)
-        disp('PLEASE SELECT THE DATAFILE(S) CONTAINING RIVALRY DATA')
+        disp('PLEASE SELECT THE DATAFILE(S) CONTAINING RIVALRY DATA IN:')
         disp(ampn{k})
-        rivalryRead();
+        riv.fn = getTXTfile(ampn{k});
+        riv.pn = [ampn{k} '\'];
+        %[riv.fn, riv.pn] = uigetfile('.txt','MultiSelect','On');
+        [riv.fn] = gfcheck(riv.fn,'cell'); %'cell' specifies that fn should be a cell array
+        folderSetup(riv.pn); % Set up the folder structure
+        rivalryRead(riv.fn, riv.pn);
     end
+    clear riv
 end
 
 %% Read tables in (not rivalry)
 if sum(ismember(SectionsRunning,'ReadIn')) == 1
     for k = 1:length(ampn)
+        disp('Please select the datafiles *NOT* containing rivalry data in:')
         disp(ampn{k})
-        read_in_tables_removeold();
+        rd.fn = getTXTfile(ampn{k});
+        rd.pn = [ampn{k} '\'];
+        %[rd.fn, rd.pn] = uigetfile('.txt','MultiSelect','On');
+        [rd.fn] = gfcheck(rd.fn,'cell'); %'cell' specifies that fn should be a cell array
+        if rivrun == 0 % Set up the folder structure, if this hasn't been done
+            folderSetup(rd.pn);
+        end
+        read_in_tables_removeold(rd.fn, rd.pn);
     end
+    clear rd
 end
 
 %% Single runs
@@ -70,7 +91,10 @@ end
 
 if sum(ismember(SectionsRunning,'SingleRuns')) == 1
     % Add Palamedes to path
-    addpath(genpath('C:\Users\bjp4\Documents\MATLAB\Toolboxes'));
+    PALpath = 'C:\Users\bjp4\Documents\MATLAB\Toolboxes'; % Palamedes is assumed to be in here
+    if exist(PALpath,'dir')
+    addpath(genpath(PALpath)); % If it exists, then add it to the Matlab Path
+    end
     % Run analysis
     for k = 1:length(ampn)
         %[fnm{k}, pnm{k}] = uigetfile(ampn{k}); % Not needed bec of previous step
@@ -171,6 +195,30 @@ end
 %         NAMES = str(s);
 %     end
 
+    function txtnames = getTXTfile(dire) 
+        d=dir(dire);
+        str = {d.name};
+        str = str(~(cellfun('isempty',regexp(str,'\.txt')))); % removes anything that isn't a txt file
+        [s,~] = listdlg('PromptString','Select a txt file:',...
+            'SelectionMode','multiple',...
+            'ListString',str);
+        txtnames = str(s);
+    end
+
+% Create empty folder structure
+%copyfile('C:\Users\bjp4\Documents\MATLAB\Study 4 Analysis\Folder structure',pn)
+    function [] = folderSetup(pn)
+        folN = {'Fitting','Outputs','Plots','Combined','Incoming'};
+        for ff = 1:length(folN)
+            mkdir(pn,folN{ff})
+            if ff == 4 % If Combined
+                for ff2 = 1:3
+                    mkdir([pn 'Combined\'],folN{ff2})
+                end
+            end
+        end
+    end
+
     function s1 = querySections(s)
         [s1,~] = listdlg('PromptString','Which sections to run:',...
             'SelectionMode','multiple',...
@@ -220,6 +268,7 @@ end
 %             end
 %         end
 %     end
+
 
 end
 

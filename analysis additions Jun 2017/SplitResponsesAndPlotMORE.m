@@ -1,7 +1,6 @@
 function [ T31, thresholds, hands, shand, legHa, optsout ] = SplitResponsesAndPlotMORE(a,optsin)
 % Splits % correct for the two button presses and plots
 
-
 % Mac problem (this code is on the Mac version to prevent error)
 % if nargin == 0
 %     msg = sprintf(['On the Mac THIS FUNCTION REQUIRES AN INPUT ARGUMENT.\n'...
@@ -92,8 +91,10 @@ end % switch
 
 %% Add the column that marks which trials had a 'towards' disparity (0 for those which had an 'away')
 
-T31.isTowards = (T31.Stimulusclosedir == 1 & T31.StimulusonFixPlane == 1) | ...
-    (T31.Stimulusclosedir == -1 & T31.StimulusonFixPlane == 0);
+%T31.isTowards = (T31.Stimulusclosedir == 1 & T31.StimulusonFixPlane == 1) | ...
+%     (T31.Stimulusclosedir == -1 & T31.StimulusonFixPlane == 0);
+
+T31.isTowards = T31.StimulusonFixPlane == (T31.Stimulusclosedir == 1); %more elegant
 
 %% Split and plot
 
@@ -108,7 +109,7 @@ if iscell(optsin)
 else
     % Y axis measure (% Correct, or % Responded Top/Bottom)
     m1tip = sprintf('Y axis values:');
-    str1 = {'Proportion Correct','Proportion Responded Top Nearer'};
+    str1 = {'Proportion Correct','Proportion Responded Top Nearer', 'Proportion Responded Test Nearer'};
     [s1,~] = listdlg('PromptString',m1tip,...
         'SelectionMode','single',...
         'ListString',str1,'InitialValue',find(ismember(str1,'Percent Correct')));
@@ -175,18 +176,25 @@ for series = 1:length(fieldnames(Tables))
     
     %% The Analysis Process
     % Prep the variables
-    if s1 == 1
-        tbAdd = [];
-        [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepNormal(T312,thVar);
-        % Evaluate Psychometric function for 'normal' cases (i.e. guess rate 50%, lapse rate 5%...)
-        PF = @PAL_Weibull;
-        [PsychFunOut, searchGrid, paramsFree, options] = getPsychFunNormal();
-    else
-        tbAdd = [' Top is near'];
-        [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepTB(T312,thVar);
-        % Evaluate Psychometric function for proportion T/B plot
-        PF = @PAL_CumulativeNormal;
-        [PsychFunOut, searchGrid, paramsFree, options] = getPsychFunPercTB();
+    switch s1
+        case 1 %Proportion Correct plot
+            tbAdd = [];
+            [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepNormal(T312,thVar);
+            % Evaluate Psychometric function for 'normal' cases (i.e. guess rate 50%, lapse rate 5%...)
+            PF = @PAL_Weibull;
+            [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun(s1);
+        case 2 % Proportion Responded Top Nearer
+            tbAdd = ' Top is near';
+            [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepTB(T312,thVar);
+            % Evaluate Psychometric function for proportion T/B plot
+            PF = @PAL_CumulativeNormal;
+            [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun(s1);
+        case 3 % Proportion Responded TEST nearer
+            tbAdd = ' Test is near';
+            [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepTest(T312,thVar);
+            % Evaluate Psychometric function for proportion TestNear plot
+            PF = @PAL_CumulativeNormal;
+            [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun(s1);
     end
     
     % Run bootstrap if requested
@@ -210,6 +218,8 @@ if s1 == 1
     axis([0 xhigh*1.1 0 1]);
 else
     axis([xhigh*-1.1 xhigh*1.1 0 1]);
+    xti = sort([-StimLevels StimLevels]);
+    set(gca, 'Xtick',xti);
     plot([0 0],[-1 1],'Color',[0.1 0.1 0.1],'LineStyle','--');
     %plot([xhigh*-1.1 xhigh*1.1],[0 0],'Color',[0.1 0.1 0.1],'LineStyle','--');
 end
@@ -326,17 +336,91 @@ disp('****************');
         StimLevelsFineGrain=[min(StimLevels):max(StimLevels)./1000:max(StimLevels)];
     end
 
+function [StimLevels,NumPos,OutOfNum,ProportionCorrectObserved,StimLevelsFineGrain] = varPrepTest(currentTable,thVar) %Prep the variables
+        
+%         Reminders:
+%         closedir = 1, TOP is close (because TOP D is negative)
+%         closedir = -1, BOTTOM is close (because BOTTOM D is negative)
+%
+%         onFixPlane = 0 TOP is on Fixation plane
+%         onFixPlane = 1 BOTTOM is on Fixation plane
+% 
+%         closedir & onFixPlane = isTowards
+%         1  & 0 = 0
+%         -1 & 1 = 0
+%         1  & 1 = 1
+%         -1 & 0 = 1
+% 
+% closedir - onFixPLane - ppResp - ppRespTestis 
+% 1     0  	T1  Far
+% 1     0   B	Close
+% 1     1   T1	Close
+% 1     1   B	Far
+% -1	0   T1	Far
+% -1	0   B	Close
+% -1	1   T1	Close
+% -1	1   B	Far
+        
+        %Get an index for when TEST is nearer (when closedir is 1 and onFixPlane is 1, or when closedir is -1 and onFixPlane is 0)
+        tNearix = currentTable.isTowards;
+        
+        %Make the disparity positive when TEST is nearer
+        tNearmult = +tNearix; tNearmult(tNearmult == 0) = -1; % make a variable to multiply by
+        StimLevels = currentTable.Stimulusdisparity'.*tNearmult';
+        
+        %Change choices from 1s and 2s to 0s and 1s, 1 being TEST was nearer
+        %ChoiceIndex = 2 -> Resp Top nearer
+        
+        RespTopNear = currentTable.ChoiceIndex-1;
+        
+        valsArr = [currentTable.Stimulusclosedir currentTable.StimulusonFixPlane RespTopNear];
+        
+        NumPos = zeros(1,length(valsArr));
+       for ka = 1:length(NumPos)
+           if any([isequal(valsArr(ka,:),[1 0 0]),isequal(valsArr(ka,:),[1 1 1]), isequal(valsArr(ka,:),[-1 0 0]), isequal(valsArr(ka,:),[-1 1 1])])
+           NumPos(ka) = 1;
+           end
+       end
+        
+%         NumPos = currentTable.ChoiceIndex'-1;
+        
+        OutOfNum = ones(1,length(NumPos));
+        
+        [StimLevels NumPos OutOfNum] = PAL_PFML_GroupTrialsbyX(StimLevels, NumPos, OutOfNum);
+        
+        ProportionCorrectObserved=NumPos./OutOfNum;
+        interval = max(max(StimLevels)./1000,0.01); % Had to set limit at 0.01 as some numbers were coming out too small and causing errors at next stage
+        StimLevelsFineGrain=[min(StimLevels):interval:max(StimLevels)];
+end
 
-    function [PsychFunOut, searchGrid, paramsFree, options] = getPsychFunNormal()
+
+    function [PsychFunOut, searchGrid, paramsFree, options] = getPsychFun(plType)
         %Parameter grid defining parameter space through which to perform a
         %brute-force search for values to be used as initial guesses in iterative
         %parameter search.
-        searchGrid.alpha = 0:.1:max(StimLevels);
-        searchGrid.beta = linspace(0,100,101);
-        %searchGrid.beta = logspace(1,3,100);
-        searchGrid.gamma = .5;  %scalar here (since fixed) but may be vector
-        searchGrid.lambda = 0.05;  %ditto
-        %searchGrid.lambda = 0:.001:.1;
+        switch plType
+            case 1 % Proportion Correct (Normal) Plot
+                searchGrid.alpha = 0:.1:max(StimLevels);
+                searchGrid.beta = linspace(0,100,101);
+                %searchGrid.beta = logspace(1,3,100);
+                searchGrid.gamma = .5;  %scalar here (since fixed) but may be vector
+                searchGrid.lambda = 0.05;  %ditto
+                %searchGrid.lambda = 0:.001:.1;
+            case 2 %Proportion Top Near
+                searchGrid.alpha = min(StimLevels):.1:max(StimLevels);
+                searchGrid.beta = linspace(0,100,101);
+                %searchGrid.beta = logspace(1,3,100);
+                searchGrid.gamma = 0;  %scalar here (since fixed) but may be vector
+                searchGrid.lambda = 0;  %ditto
+                %searchGrid.lambda = 0:.001:.1;
+            case 3 %Proportion Test Near
+                searchGrid.alpha = min(StimLevels):.1:max(StimLevels);
+                searchGrid.beta = linspace(0,100,101);
+                %searchGrid.beta = logspace(1,3,100);
+                searchGrid.gamma = 0;  %scalar here (since fixed) but may be vector
+                searchGrid.lambda = 0;  %ditto
+                %searchGrid.lambda = 0:.001:.1;
+        end
         
         %Fit a function
         %Threshold and Slope are free parameters, guess and lapse rate are fixed
@@ -364,46 +448,6 @@ disp('****************');
         PsychFunOut =  cell2struct({paramsValues, LL, exitflag, output,ProportionCorrectModel},{'paramsValues', 'LL', 'exitflag', 'output','ProportionCorrectModel'},2);
         
     end
-
-%Psychometric function for % Top/Bottom
-    function [PsychFunOut, searchGrid, paramsFree, options] = getPsychFunPercTB()
-        %Parameter grid defining parameter space through which to perform a
-        %brute-force search for values to be used as initial guesses in iterative
-        %parameter search.
-        searchGrid.alpha = min(StimLevels):.1:max(StimLevels);
-        searchGrid.beta = linspace(0,100,101);
-        %searchGrid.beta = logspace(1,3,100);
-        searchGrid.gamma = 0;  %scalar here (since fixed) but may be vector
-        searchGrid.lambda = 0;  %ditto
-        %searchGrid.lambda = 0:.001:.1;
-        
-        %Fit a function
-        %Threshold and Slope are free parameters, guess and lapse rate are fixed
-        paramsFree = [1 1 0 0];  %1: free parameter, 0: fixed parameter
-        
-        %Optional:
-        options = PAL_minimize('options');   %type PAL_minimize('options','help') for help
-        options.TolFun = 1e-09;     %increase required precision on LL
-        options.MaxIter = 100;
-        options.Display = 'off';    %suppress fminsearch messages
-        
-        %Perform fit
-        disp('Fitting function.....');
-        [paramsValues LL exitflag output] = PAL_PFML_Fit(StimLevels,NumPos, ...
-            OutOfNum,searchGrid,paramsFree,PF,'searchOptions',options);
-        
-        disp('done:')
-        message = sprintf('Threshold estimate: %6.4f',paramsValues(1));
-        disp(message);
-        message = sprintf('Slope estimate: %6.4f\r',paramsValues(2));
-        disp(message);
-        
-        ProportionCorrectModel = PF(paramsValues,StimLevelsFineGrain);
-        
-        PsychFunOut =  cell2struct({paramsValues, LL, exitflag, output,ProportionCorrectModel},{'paramsValues', 'LL', 'exitflag', 'output','ProportionCorrectModel'},2);
-        
-    end
-
 
 
     function [bootsOut, GoFOut] = bootsfun(ParOrNonPar)
@@ -538,11 +582,11 @@ disp('****************');
         inputT.Response(strcmp('Miss',inputT.Response))={'0'};
         inputT.Response(strcmp('Aborted',inputT.Response))={'0'};
         inputT.Response = str2double(inputT.Response);
-        
-        for n = 1:length(tvs);
-            if iscell(inputT{:,n}) == 1
-                if all(cell2mat(cellfun(@(x) all(ismember(x, '0123456789+-.eEdD')),inputT{:,n},'UniformOutput',0)));
-                    inputT.(tvs{n}) = str2double(inputT.(tvs{n}));
+               
+        for nt = 1:length(tvs);
+            if iscell(inputT{:,nt}) == 1
+                if all(cell2mat(cellfun(@(x) all(ismember(x, '0123456789+-.eEdD')),inputT{:,nt},'UniformOutput',0)));
+                    inputT.(tvs{nt}) = str2double(inputT.(tvs{nt}));
                 end
             end
         end
@@ -743,13 +787,13 @@ disp('****************');
                 imported.(name).Response(strcmp('Miss',imported.(name).Response))={'0'};
                 imported.(name).Response(strcmp('Aborted',imported.(name).Response))={'0'};
                 imported.(name).Response = str2double(imported.(name).Response);
-                
-                for n = 1:length(tvs);
-                    if iscell(imported.(name){:,n}) == 1
-                        if all(cell2mat(cellfun(@(x) all(ismember(x, '0123456789+-.eEdD')),imported.(name){:,n},'UniformOutput',0)));
-                            imported.(name).(tvs{n}) = str2double(imported.(name).(tvs{n}));
+                               
+                for nt1 = 1:length(tvs);
+                    if iscell(imported.(name){:,nt1}) == 1
+                        if all(cell2mat(cellfun(@(x) all(ismember(x, '0123456789+-.eEdD')),imported.(name){:,nt1},'UniformOutput',0)));
+                            imported.(name).(tvs{nt1}) = str2double(imported.(name).(tvs{nt1}));
                         else
-                            disp(['Variable ',tvs{n},' was not recognised as a variable containing numbers. (Table: ',name,')'])
+                            disp(['Variable ',tvs{nt1},' was not recognised as a variable containing numbers. (Table: ',name,')'])
                         end
                     end
                 end
