@@ -36,7 +36,7 @@
 %
 %     pp = pp+1;
 
-function [] = splitRespWrapper(a)
+function [a] = splitRespWrapper(a)
 
 if nargin <1
     % [a] = gatherFile('datacomb','Exp000BJ','D:\Work\MATLAB\ParticipantsNOW'); % For use on LAPTOP

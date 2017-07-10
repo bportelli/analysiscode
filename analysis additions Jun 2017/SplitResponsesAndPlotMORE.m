@@ -218,7 +218,7 @@ if s1 == 1
     axis([0 xhigh*1.1 0 1]);
 else
     axis([xhigh*-1.1 xhigh*1.1 0 1]);
-    xti = sort([-StimLevels StimLevels]);
+    xti = sort(unique([-StimLevels StimLevels]));
     set(gca, 'Xtick',xti);
     plot([0 0],[-1 1],'Color',[0.1 0.1 0.1],'LineStyle','--');
     %plot([xhigh*-1.1 xhigh*1.1],[0 0],'Color',[0.1 0.1 0.1],'LineStyle','--');

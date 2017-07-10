@@ -1,10 +1,11 @@
-function [avg, tot, reversals, han] = analyseRivalry(varsetup,data,expName,expDateSess, readID)
+function [avg, tot, reversals, han] = analyseRivalry(varsetup,data,expName,expDateSess, readID, split, oppIns)
 %% Analyse Rivalry files
 
 %% Make a wrapper function
 %Include a diary for log file, and saving of plot
 
-% Change lines 44 and 76 for people with opposite instructions
+% Change lines for people with opposite instructions
+%oppIns = 0;
 
 %% Note on LR: winopen('C:\Users\bjp4\Documents\MATLAB\Study 6 Analysis\LRsetup.bmp')
 % When LR is 0, 135 deg is in Left eye, and 45 deg is in right eye
@@ -25,9 +26,12 @@ getVal = @(x,y)(str2double(cell2mat(regexp(varsetup.(x{y}),'\d{1,3}','match'))))
 EYES = {'Right Eye','No Button','Left Eye'};
 EYENUMS = [1 0 -1];
 
+%% Input setup
+split = isequal(split,'split'); % If 'split' is specified, then separate the plots of total and average from the button-press timeline
+
 %% Comprehension Check
 %If they fail it just put a note on the plot and in the log file and carry
-%on (or make a window pop up? and carry on)
+%on (with a warning for the log file)
 
 %Check in what order comprehension check was done, flip button order (or not) accordingly
 ori = getVal(sameTablesInfo,1); %extract 1-3 digits to get the orientation of the first 'same' condition
@@ -41,7 +45,7 @@ switch ori
         warning('Orientation not correctly obtained. ERROR IMMINENT.')
 end
 
-%btns = flip(btns); % FOR PP WITH OPPOSITE INSTRUCTIONS
+if oppIns; btns = flip(btns); end % FOR PP WITH OPPOSITE INSTRUCTIONS
 for sT = 1:2
     taNow = data.(sameTables{sT}); %table from the 'same' condition (Comprehension Check)
     [taNow] = makeVNamesGeneric(taNow); % make variable names just Input and Time
@@ -63,7 +67,6 @@ for sT = 1:2
     end
 end
 
-
 %% Loop through the 'Trials'
 for trial = 1:2
 LR = getVal(rivTablesInfo,trial); %extract 1-3 digits to get the LR setup (see note above)
@@ -73,7 +76,7 @@ tableNow = data.(rivTables{trial});
 tableNow = makeVNamesGeneric(tableNow);
 
 %Change the Inputs to Eye References (1 is looking through right eye, -1 through left eye)
-%LR = ~LR; %FOR USE WITH OPPOSITE INSTRUCTIONS
+if oppIns; LR = ~LR; end %FOR USE WITH OPPOSITE INSTRUCTIONS
 if LR %IF LR IS 1
     % Here, 'Left Shift' is looking through right eye
     tableNow = changeToEye(tableNow,[0,-1,1]); %second input in: 'None','Right Shift','Left Shift'
@@ -138,19 +141,18 @@ reversals = 0;
 rr = 0; rr2 = 0; %counters
 while rr2<length(XandY) %rr2 is always ahead of rr
     rr=rr+1;
-    if XandY(rr,1) == 0
-        continue
-    end
-    val1 = XandY(rr);
+    if XandY(rr,1) == 0 %If no button is pressed here, jump to the next one (does this until a button press is reached)
+        continue;    end
+    val1 = XandY(rr); %Current button being pressed, to compare with next
     rr2 = rr+1;
-    val2 = XandY(rr2);
+    val2 = XandY(rr2); % Button to compare against, but it might be zero (no button pressed), so...
     
-    while and(val2==0,rr2<length(XandY))
+    while and(val2==0,rr2<length(XandY)) % Keep looking until it isn't
         rr2=rr2+1;
-        val2 = XandY(rr2);
+        val2 = XandY(rr2); 
     end
         
-    if val1 ~= val2
+    if val1 ~= val2 % If the two subsequent button-presses are not the same, this is a reversal. If they are the same, it isn't. Carry on comparing later buttons.
         reversals = reversals+1;
         rr=rr2-1; %skip to where rr2 was (the minus 1 is to account for the incrementing at the top)
     else
@@ -175,6 +177,7 @@ disp('****************');
 %Symbols
 AS = 'x'; %Average Symbol
 TS = 'o'; %Total Symbol
+axisSet = [0 TRIALDUR*2 -2 2]; %X axis is as long as 2 rivalry trials
 
 % Scatter Plot Colour Settings
 colours = getSomeColours();
@@ -186,9 +189,15 @@ else
 plotTitle = [];
 end
 
-% Begin Plotting
+% Craete the figure
 han.f = figure(1);
-axis([0 TRIALDUR*2 -2 2]) %X axis is as long as 2 rivalry trials
+spm = subplot(1,1,1);
+
+% Set up the (first) axes and begin plotting
+if split
+   sp1 = subplot(2,1,1);
+end
+axis(axisSet); %X axis is as long as 2 rivalry trials
 hold on
 
 %Shading for the plot
@@ -197,29 +206,46 @@ han.ar(2) = area(timePtsFine(buttonsFine<=0),buttonsFine(buttonsFine<=0),'EdgeCo
 % [bottomLine, topLine] = plotColours(buttonsFine);
 % plot(timePtsFine,bottomLine,'r',timePtsFine,topLine,'g');
 
-% The data points and stairs
+% The data points
 han.sc = scatter(timePts(buttons==0),buttons(buttons==0),30,colours(buttons==0,:),'filled');
+if split % if split, then the below is on the bottom half
+    sp2 = subplot(2,1,2);
+    axis(axisSet) %X axis is as long as 2 rivalry trials
+    hold on
+end
 han.avsc = scatter(avg,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],AS);
 han.tosc = scatter(tot,[1 0 -1],50,[1 0 0; 0 1 0; 0 0 1],TS);
 
 %% Plot Annotations and Title
-title(plotTitle,'interpreter','none')
+if split % if split, then the below is in the top half
+    subplot(sp1); end
 text(30,-1.5,compCheck,'color','r') % Prints in red if they've failed the comprehension check
 text(30,1.5,sprintf('Reversals: %d',reversals),'color','k') % Shows the number of reversals
 
-% Legend Stuff
+% Legend Stuff for Averages and Totals
+if split % if split, then the below is in the bottom half
+    subplot(sp2); end
 han.legAX = scatter(0,0,1,['k' AS],'Visible','off');
 han.legTX = scatter(0,0,1,['k' TS],'Visible','off');
 han.Leg = legend([han.legAX han.legTX],{'Averages', 'Totals'});
 
 %Average and Total
 for avN = 1:length(avg)
-text(avg(avN)+2,2-(avN)+0.1,sprintf('Average: %.2f',avg(avN)))
-text(avg(avN)+2,2-(avN)-0.1,sprintf('Total: %.2f',tot(avN)))
+text(avg(avN)+2,2-(avN)+0.2,sprintf('Average: %.2f',avg(avN)))
+text(avg(avN)+2,2-(avN)-0.2,sprintf('Total: %.2f',tot(avN)))
 end
 
-ylabel('Right Eye (1), Left Eye (-1), or No Button (0)')
-xlabel('Time in seconds')
+% Make the axis labels
+if exist('sp1','var')
+    p1=get(sp1,'position');
+    p2=get(sp2,'position');
+    height=p1(2)+p1(4)-p2(2);
+    spm=axes('position',[p2(1) p2(2) p2(3) height],'visible','off'); %change the value of spm to be the 'main' axes
+end
+title(spm, plotTitle,'interpreter','none','Visible','on')
+ylabel(spm,'Right Eye (1), Left Eye (-1), or No Button (0)','Visible','on')
+xlabel(spm,'Time in seconds','Visible','on')
+
 
 %% Sub-functions
     function [ta] = changeToEye(ta,in) %in: 'None','Right Shift','Left Shift'
