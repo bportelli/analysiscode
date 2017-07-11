@@ -14,7 +14,7 @@ Names = getNames(STUDYDIR);
 for SinCom = 1:2 %Single Runs or Combined
     clear shtNames toCopy NsToCopy
     
-    sr = SR2{SinCom}; if ~isempty(sr); disp(sr(2:end)); else disp('Combined Runs'); end
+    sr = SR2{SinCom}; if ~isempty(sr); disp(sr) else disp(); end
     theName = XLNAMES{SinCom};
     thePath = [STUDYDIR '\' theName]; %the full path to the Summary file
     
