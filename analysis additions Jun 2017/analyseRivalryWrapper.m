@@ -45,10 +45,11 @@ end
 
     function opI = oppositeInstructionCheck(na)
         %         opI = input('Input 1 if opposite instructions');
+        list = [na {'None'}];
         [s,~] = listdlg('PromptString','Reversed instructions:',...
             'SelectionMode','multiple',...
-            'ListString',[na {'None'}],'InitialValue',length(na)+1,'OKString','Select','CancelString','None');
-        opI = na(s);
+            'ListString',list,'InitialValue',length(list),'OKString','Select','CancelString','None');
+        opI = list(s);
     end
 
 

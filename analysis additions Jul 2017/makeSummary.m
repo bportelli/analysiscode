@@ -58,7 +58,7 @@ if newfile
     hsheet=Excel.Sheets.Item('Sheet1');
     hsheet.Delete
     % Close the Summary Sheet when finished
-    Excel.WorkBooks.Item(wbname).Close;
+    Excel.WorkBooks.Item(theName).Close;
 end
 
 end % end of single/combi loop

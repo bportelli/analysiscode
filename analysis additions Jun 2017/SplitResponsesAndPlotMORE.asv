@@ -1,4 +1,4 @@
-function [ T31, thresholds75, hands, shand, legHa, varAndPFOut, optsout ] = SplitResponsesAndPlotMORE(a,optsin)
+function [ T31, thresholds, hands, shand, legHa, varAndPFOut, optsout ] = SplitResponsesAndPlotMORE(a,optsin)
 % Splits % correct for the two button presses and plots
 
 % Mac problem (this code is on the Mac version to prevent error)
@@ -190,7 +190,7 @@ for series = 1:length(fieldnames(Tables))
     
     %% Prepare the Output (for Saving, if desired)
         varsToStore = {'StimLevels','NumPos','OutOfNum','ProportionCorrectObserved',...
-        'StimLevelsFineGrain','PF','PsychFunOut','searchGrid','paramsFree','options','funcOpts','values'};
+        'StimLevelsFineGrain','PF',' PsychFunOut',' searchGrid',' paramsFree',' options','funcOpts','values'};
     for vts = 1:length(varsToStore)
         varAndPFOut(series).(varsToStore{vts}) = eval(varsToStore{vts});
     end
@@ -203,7 +203,7 @@ for series = 1:length(fieldnames(Tables))
         rev = 0;
     end
     [fhand, hands, tx, shand] = makePlot(LineColour{series}, series, hands, rev);
-    thresholds75(series) = tx; %collect the thresholds for output
+    thresholds(series) = tx; %collect the thresholds for output
 end
 
 % Finish off the plot aesthetics and display the thresholds
@@ -230,18 +230,18 @@ disp('       1        '); %Towards/Near
 disp('----------------');
 
 disp('****************');
-for m = 1:length(thresholds75)
-    fprintf('Threshold %s: %0.2f \n',leg_labels{m},thresholds75(m));
+for m = 1:length(thresholds)
+    fprintf('Threshold %s: %0.2f \n',leg_labels{m},thresholds(m));
 end
 disp('****************');
 
-for ser = 1:length(leg_labels)
-t25t50t75(1) = PF(varAndPFOut(ser).PsychFunOut.paramsValues,0.25,'Inverse'); % Calculate and display thresholds for 25%, 50% and 75% of the green curve
-t25t50t75(2) = PF(varAndPFOut(ser).PsychFunOut.paramsValues,0.50,'Inverse');
-t25t50t75(3) = PF(varAndPFOut(ser).PsychFunOut.paramsValues,0.75,'Inverse');
+for ser = 1:length()
+t25t50t75(1) = PF(varAndPFOut(1).PsychFunOut.paramsValues,0.25,'Inverse'); % Calculate and display thresholds for 25%, 50% and 75% of the green curve
+t25t50t75(2) = PF(varAndPFOut(1).PsychFunOut.paramsValues,0.50,'Inverse');
+t25t50t75(3) = PF(varAndPFOut(1).PsychFunOut.paramsValues,0.75,'Inverse');
 thl = [25 50 75];
 for m = 1:length(t25t50t75)
-    fprintf('Threshold from %s at %d: %0.2f \n',leg_labels{ser},thl(m),t25t50t75(m));
+    fprintf('Threshold from Overall at %d: %0.2f \n',thl(m),t25t50t75(m));
 end
 disp('****************');
 end

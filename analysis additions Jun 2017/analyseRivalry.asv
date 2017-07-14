@@ -228,8 +228,6 @@ if split % if split, then the below is in the top half
     subplot(sp1); end
 text(30,-1.5,compCheck,'color','r') % Prints in red if they've failed the comprehension check
 text(30,1.5,sprintf('Reversals: %d',reversals),'color','k') % Shows the number of reversals
-ylabel(sprintf('Right Eye (1), Left Eye (-1),\n or No Button (0)'),'Visible','on','FontSize',10)
-xlabel('Time in seconds','Visible','on','FontSize',10)
 
 % Legend Stuff for Averages and Totals
 if split % if split, then the below is in the bottom half
@@ -241,10 +239,9 @@ han.Leg = legend([han.legAX],{'Averages'});
 
 %Average and Total
 for toN = 1:length(avg)
-text(2-(toN)-0.4,tot(toN)+3,sprintf('Average: %.2f',avg(toN)))
-text(2-(toN)-0.4,tot(toN)+9,sprintf('Total: %.2f',tot(toN)))
+text(tot(toN)+2,2-(toN)+0.2,sprintf('Average: %.2f',avg(toN)))
+text(tot(toN)+2,2-(toN)-0.2,sprintf('Total: %.2f',tot(toN)))
 end
-ylabel('Time in seconds','FontSize',10)
 
 % Make the axis labels
 if exist('sp1','var')
@@ -254,8 +251,8 @@ if exist('sp1','var')
     spm=axes('position',[p2(1) p2(2) p2(3) height],'visible','off'); %change the value of spm to be the 'main' axes
 end
 title(spm, plotTitle,'interpreter','none','Visible','on')
-
-
+ylabel(spm,'Right Eye (1), Left Eye (-1), or No Button (0)','Visible','on')
+xlabel(spm,'Time in seconds','Visible','on')
 
 
 %% Sub-functions

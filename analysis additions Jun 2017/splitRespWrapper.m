@@ -48,14 +48,15 @@ numOfFiles = length(a);
 opts = 1; % to make it ask the first time
 
 for k = 1:numOfFiles
-    opts = doTheThing(a{k},opts);
+    [opts, T31, thresholds, varAndPFOut] = doTheThing(a{k},opts);
+    save(sprintf('%d.mat',k),'opts', 'T31', 'thresholds', 'varAndPFOut');
     saveas(gcf,sprintf('%d.fig',k))
     close gcf
 end
 
-    function [opts] = doTheThing(a,opts)
+    function [opts, T31, thresholds, varAndPFOut] = doTheThing(a,opts)
         
-        [ T31, thresholds, hands, shand, legHa, opts ] = SplitResponsesAndPlotMORE(a,opts);
+        [ T31, thresholds, hands, shand, legHa, varAndPFOut, opts ] = SplitResponsesAndPlotMORE(a,opts);
         legendWords = get(legHa,'String');
         legendWords(ismember(legendWords,'0')) = {'DisplacedAway'};
         legendWords(ismember(legendWords,'1')) = {'DisplacedTowards'};
