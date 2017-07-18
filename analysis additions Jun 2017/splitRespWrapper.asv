@@ -91,13 +91,13 @@ end
             if varAndPFOut(1).funcOpts{1}==3
                 xloc = FinalT+0.05;
                 if xloc > 0.6
-                    xloc = FinalT-7;
-                end
+                    xloc
+                en
                 text(xloc,0.5,sprintf('Threshold: %.2f',FinalT))
             end
             
             axhan = findobj(gcf,'type','Axes');
-            interv = max(1,abs(varAndPFOut(1).StimLevels(1)-varAndPFOut(1).StimLevels(2))); % interval floored at 1
+            interv = abs(varAndPFOut(1).StimLevels(1)-varAndPFOut(1).StimLevels(2));
             newlab = varAndPFOut(1).StimLevels(1):interv:varAndPFOut(1).StimLevels(length(varAndPFOut(1).StimLevels));
             set(axhan,'Xtick',newlab);            
         end

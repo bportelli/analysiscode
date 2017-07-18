@@ -20,7 +20,7 @@ for SinCom = 1:2 %Single Runs or Combined
     
 % Make sure a SUMMARY file exists to use (or create one)
 newfile = 0;
-if ~exist(thePath, 'file') % If it doesn't exist, create it
+if ~exist(thePath, 'file') % If it doesn't exist, create it, with a single digit in Sheet 1
     warning('SUMMARY file not found. Creating a new one.')
     pause(1)
     xlswrite(thePath,[1]);

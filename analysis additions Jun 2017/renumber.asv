@@ -40,29 +40,21 @@ end
         if ~isempty(a)
             a = num2str(a{1}); % use this to limit the window display further
             pattern = ['^' a '\.(fig|mat|txt|png)'];
-            [selected] = listbx(0); % Takes all matches without displaying listbox
-            return;
+            
+            
+            
         else
             pattern = '^\d(\d)?\.(fig|mat|txt|png)';
         end
-        
-        [selected] = listbx(1);
-        
-        %%%%%% Sub %%%%%%
-        function [selected] = listbx(in)
-            %Selection listbox
-            d=dir(d);
-            str = {d.name};
-            str = str(~cellfun('isempty',regexp(str,pattern))); % displays files with digits in name
-            if in
-            if isempty(str); disp('No (more) files eligible for renumbering'); selected = []; return; end
-            [s,~] = listdlg('PromptString','Select files to renumber:',...
-                'SelectionMode','multiple',...
-                'ListString',str);
-            selected = str(s);
-            else selected = str;
-            end
-        end
+        %Selection listbox
+        d=dir(d);
+        str = {d.name};
+        str = str(~cellfun('isempty',regexp(str,pattern))); % displays files with digits in name
+        if isempty(str); disp('No (more) files eligible for renumbering'); selected = []; return; end
+        [s,~] = listdlg('PromptString','Select files to renumber:',...
+            'SelectionMode','multiple',...
+            'ListString',str);
+        selected = str(s);
     end
 
     function changeto = inputNew(varargin)

@@ -1,4 +1,4 @@
-function [ T31, thresholds75, hands, shand, legHa, varAndPFOut, optsout ] = SplitResponsesAndPlotMORE(a,optsin)
+function [ T31, thresholds75, hands, shand, legHa, varAndPFOut, optsout ] = SplitResponsesAndPlotMORE(a,optsin,pl)
 % Splits % correct for the two button presses and plots
 
 % Mac problem (this code is on the Mac version to prevent error)
@@ -114,7 +114,7 @@ else
     str1 = {'Proportion Correct','Proportion Responded Top Nearer', 'Proportion Responded Test Nearer'};
     [s1,~] = listdlg('PromptString',m1tip,...
         'SelectionMode','single',...
-        'ListString',str1,'InitialValue',find(ismember(str1,'Percent Correct')));
+        'ListString',str1,'InitialValue',find(ismember(str1,'Proportion Correct')));
     yVar = str1{s1};
     
     % Split based on which variable?
@@ -165,7 +165,8 @@ if makeTheNumbersStrings % now make the numbers strings, so they can be labels
 end
 
 hands = gobjects(); % prepare to receive handles of plots for legend
-
+shand = gobjects();
+legHa = gobjects();
 for series = 1:length(fieldnames(Tables))
     
     clear StimLevels NumPos OutOfNum ProportionCorrectObserved StimLevelsFineGrain...
@@ -199,16 +200,20 @@ for series = 1:length(fieldnames(Tables))
     LineColour = {'g','b','y','k','c'};
     if and(or(s1 == 2, s1==3), series == 1+find(ismember(cell2mat(values),'0'))) % If it's a top/test nearer plot, and if we're on te "Away" part...
         rev = 1; %...this is a reversed plot, so the 25% threshold should be shown
-    else
-        rev = 0;
+    else rev = 0;
     end
-    [fhand, hands, tx, shand] = makePlot(LineColour{series}, series, hands, rev);
+    %Threshold
+    tx = PF(PsychFunOut.paramsValues,abs(rev-0.75),'Inverse'); % Note that when 'reversed' (rev) is true (e.g. for Away) we get the 25% instead of the 75%
+    if pl
+    [fhand, hands, shand] = makePlot(LineColour{series}, series, hands);
+    end
     thresholds75(series) = tx; %collect the thresholds for output
 end
 
 % Finish off the plot aesthetics and display the thresholds
-xhigh = max(xhigh,max(StimLevels));
 leg_labels = [{'All'} values'];
+if pl
+xhigh = max(xhigh,max(StimLevels));
 legHa = legend(hands,'String',leg_labels); % Make a legend for the plot
 if s1 == 1
     axis([0 xhigh*1.1 0 1]);
@@ -219,7 +224,7 @@ else
     plot([0 0],[-1 1],'Color',[0.1 0.1 0.1],'LineStyle','--');
     %plot([xhigh*-1.1 xhigh*1.1],[0 0],'Color',[0.1 0.1 0.1],'LineStyle','--');
 end
-
+end
 
 % Reminder - Button 1 is A, 2 is B, 3 is X, 4 is Y
 disp(' BUTTON  LAYOUT ');
@@ -501,7 +506,7 @@ end
         
     end
 
-    function [fhand, phand, tx, shand] = makePlot(LineCol, seriesNum, phand, rev)
+    function [fhand, phand, shand] = makePlot(LineCol, seriesNum, phand)
         
         fhand = figure(1);
         
@@ -519,9 +524,6 @@ end
         phand(seriesNum) = plot(StimLevelsFineGrain,PsychFunOut.ProportionCorrectModel,[LineCol '-'],'linewidth',4);
         xlabel([thVar XLABELSUFFIX{s1}]);
         ylabel(yVar);
-        
-        %Threshold marker
-        tx = PF(PsychFunOut.paramsValues,abs(rev-0.75),'Inverse'); % Note that when funciton is 'reversed' (e.g. for Away) we get the 25% instead of the 75%%
         
         %Plot aesthetics
         set(gca,'XTickLabelRotation', 90)

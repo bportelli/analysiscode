@@ -27,6 +27,7 @@ for pp = 1:length(NAMES)
     % save figures to the MATLAB root, collect them from there
     %saveas(gcf,sprintf('%s.fig',fnm{pp}(1:end-4)))
     saveas(gcf,sprintf('%d.fig',pp))
+    saveas(gcf,sprintf('%d.png',pp))
     
     close gcf
     diary off
