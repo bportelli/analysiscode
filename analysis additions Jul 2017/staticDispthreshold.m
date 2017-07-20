@@ -25,7 +25,7 @@ else
     if ~isstruct(varargin{1}) 
         propCorrd = varargin{1};
         propTestd = varargin{2};
-        if ~isempty(varargin{3})
+        if length(varargin)>2
             matnames = varargin{3};
         else
             matnames = getMATfiles(propCorrd);
@@ -38,7 +38,7 @@ end
 
 %% from propCorrd
 
-[OOBa, OOBt] = getOOB(propCorrd,matnames); % Out of Bounnds for Away and Towards, and matnames for later use
+[OOBa, OOBt] = getOOB(propCorrd,matnames); % Out of Bounnds for Away and Towards
 
 %% from propTestd
 %This function will ignore any files that exist in propTestd folder, that don't in the other
@@ -95,11 +95,12 @@ thresholds= [numlist' ; thresholds(1,:)]';
             [a, values, ~] = varLoad(dire,matnms(mn2),'PT'); %Proportion Test
             
             if OOBa(mn2) % if away is out of bounds, get 75-50 threshold for towards
+                disp('No threshold for Away - Collecting From Towards')
                 paramsValues = a.varAndPFOut(find(values == 1)+1).PsychFunOut.paramsValues;
                 PF = a.varAndPFOut(1).PF;
                 t75 = PF(paramsValues,0.75,'Inverse'); t50 = PF(paramsValues,0.5,'Inverse');
                 thresholds(mn2) = t75-t50;
-            else % if away isn't out of bounds, get ((75-50) + (50-25))/2 threshold for towards
+            else % if away isn't out of bounds, get ((75-50) + (50-25))/2 threshold from Both
                 paramsValues = a.varAndPFOut(1).PsychFunOut.paramsValues;
                 PF = a.varAndPFOut(1).PF;
                 t75 = PF(paramsValues,0.75,'Inverse'); t50 = PF(paramsValues,0.5,'Inverse'); t25 = PF(paramsValues,0.25,'Inverse');
