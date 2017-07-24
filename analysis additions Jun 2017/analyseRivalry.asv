@@ -54,8 +54,9 @@ for sT = 1:2
     ix = ~cellfun('isempty',regexp(taNow.Input,btns{sT})); %Find out on which row(s) the correct button for this check is
     mstT = ismember(taNow.TimeSpent,max(taNow.TimeSpent)); %Find out on which row most time was spent
     
-    if isequal(taNow.Input{mstT},'None') % Ignore "None" if it's the "longest button press"
-        A1 = unique(taNow.TimeSpent); out = A1(end-1);
+    if isequal(taNow.Input{mstT},'None') % Ignore "None" 
+        A1 = unique(taNow.TimeSpent);
+        out = A1([end-1]);
         mstT = ismember(taNow.TimeSpent,out);
     end
     
