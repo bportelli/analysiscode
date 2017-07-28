@@ -81,7 +81,11 @@ thresholds= [numlist' ; thresholds(1,:)]';
             OOBt(mn)= or(t2 < LOWLIMIT, t2 > UPLIMIT); %records "Out Of Bounds" thresholds (less than 0 or higher than 12.5) for Towards
             
             if and(OOBt(mn),~OOBa(mn))
-                warning(sprintf('Take a closer look at the participant %s',matnms{mn}))
+                if length(matnms(1)) == 1
+                    warning('Take a closer look at this participant')
+                else
+                    warning('Take a closer look at the participant %s',matnms{mn})
+                end
             end
         end
     end
